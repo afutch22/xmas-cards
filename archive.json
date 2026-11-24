@@ -1,0 +1,14 @@
+{
+  "title": "Holiday Cards",
+  "subtitle": "one card a year",
+  "cards": [
+    {
+      "id": "example",
+      "title": "Happy Holidays",
+      "path": "years/example/",
+      "cover": null,
+      "color": "#b8282f",
+      "status": "draft"
+    }
+  ]
+}

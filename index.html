@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Holiday Cards</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; background: #f6efe3; color: #2b2420; font-family: Georgia, "Times New Roman", serif; }
+  header { text-align: center; padding: 4.5rem 1rem 2.5rem; }
+  h1 { margin: 0; font-weight: 400; font-size: clamp(2.2rem, 6vw, 3.4rem); letter-spacing: .01em; }
+  header p { margin: .6rem 0 0; color: #8a7a6c; font-style: italic; }
+  main { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 3rem 2.2rem; max-width: 1040px; margin: 0 auto; padding: 2.5rem 1.5rem 6rem; }
+  a.card { display: grid; gap: .9rem; justify-items: center; text-decoration: none; color: inherit; }
+  .env { position: relative; width: 100%; aspect-ratio: 1.55; transition: transform .35s cubic-bezier(.2,1.4,.4,1); }
+  .env > * { position: absolute; }
+  .back { inset: 0; border-radius: 6px; background: color-mix(in srgb, var(--c) 78%, black); box-shadow: 0 12px 26px rgba(0,0,0,.18); }
+  .peek { left: 14%; width: 72%; top: -30%; aspect-ratio: 4 / 5; object-fit: cover; background: #fffdf7; padding: 4%; transform: rotate(-3deg); box-shadow: 0 2px 8px rgba(0,0,0,.2); transition: transform .35s; }
+  .front { inset: 0; border-radius: 6px; background: var(--c); clip-path: polygon(0 0, 50% 52%, 100% 0, 100% 100%, 0 100%); }
+  .flap { inset: 0 0 auto 0; height: 56%; background: color-mix(in srgb, var(--c) 90%, white); clip-path: polygon(0 0, 100% 0, 50% 100%); }
+  .stamp { right: 6%; bottom: 12%; padding: .3rem .7rem; background: #fffaf0; font-size: 1.05rem; transform: rotate(4deg); box-shadow: 0 1px 3px rgba(0,0,0,.15); }
+  a.card:hover .env { transform: translateY(-6px) rotate(-1.5deg); }
+  a.card:hover .peek { transform: translateY(-10%) rotate(-5deg); }
+  .title { font-size: 1.1rem; text-align: center; }
+  .draft { font: 600 .7rem system-ui, sans-serif; letter-spacing: .1em; text-transform: uppercase; color: #b8282f; }
+  .empty { grid-column: 1 / -1; text-align: center; color: #8a7a6c; font-style: italic; }
+</style>
+</head>
+<body>
+<header><h1 id="title">Holiday Cards</h1><p id="subtitle"></p></header>
+<main id="grid"></main>
+<script>
+  // Lists cards from archive.json. Drafts show only with ?drafts in the URL.
+  const showDrafts = new URLSearchParams(location.search).has("drafts");
+  const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  fetch("archive.json", { cache: "no-store" })
+    .then((r) => r.json())
+    .then((a) => {
+      document.title = a.title || "Holiday Cards";
+      document.getElementById("title").textContent = a.title || "Holiday Cards";
+      document.getElementById("subtitle").textContent = a.subtitle || "";
+      const cards = a.cards
+        .filter((c) => c.status === "published" || showDrafts)
+        .sort((x, y) => String(y.id).localeCompare(String(x.id), undefined, { numeric: true }));
+      const grid = document.getElementById("grid");
+      if (!cards.length) {
+        grid.innerHTML = `<p class="empty">The first card is on its way.</p>`;
+        return;
+      }
+      grid.innerHTML = cards
+        .map((c) => `
+          <a class="card" href="${esc(c.path)}">
+            <div class="env" style="--c:${esc(c.color || "#b8282f")}">
+              <div class="back"></div>
+              ${c.cover ? `<img class="peek" src="${esc(c.cover)}" alt="">` : ""}
+              <div class="front"></div>
+              ${c.cover ? "" : `<div class="flap"></div>`}
+              <div class="stamp">${esc(c.id)}</div>
+            </div>
+            <div class="title">${esc(c.title)}</div>
+            ${c.status !== "published" ? `<div class="draft">${esc(c.status)}</div>` : ""}
+          </a>`)
+        .join("");
+    });
+</script>
+</body>
+</html>
