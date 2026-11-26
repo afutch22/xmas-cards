@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gatefold Card Walkthrough</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Fraunces:ital,opsz,wght@1,9..144,400;1,9..144,600&family=Figtree:wght@400;500;600&display=swap">
+<style>
+/* Layout idea: a working prototype of the full gatefold flow on the left, the recipient's step-by-step journey on the right. */
+:root {
+  --bg: #2b1f1d;
+  --bg-2: #3d2c29;
+  --paper: #f8e7e2;
+  --paper-2: #fdf6f1;
+  --ink: #2a1d1b;
+  --red: #c23b2a;
+  --pine: #4f6b34;
+  --pink: #e8a6b5;
+  --gold: #c9962e;
+  --text: #f6e9e4;
+  --text-soft: #c9b3ad;
+  --display: "Fraunces", Georgia, serif;
+  --hand: "Caveat", "Bradley Hand", cursive;
+  --body: "Figtree", system-ui, sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--text); font: 16px/1.55 var(--body); }
+.wrap { max-width: 1200px; margin: 0 auto; padding: 0 18px 60px; }
+header { padding: 36px 0 18px; display: grid; gap: 6px; }
+h1 { margin: 0; font: italic 400 clamp(1.9rem, 4.6vw, 2.8rem)/1.05 var(--display); }
+h1 span { color: var(--pink); }
+.lede { margin: 0; color: var(--text-soft); max-width: 66ch; }
+.grid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(280px, 1fr); gap: 28px; align-items: start; }
+@media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+
+.controls { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.pill { border: 1.5px solid var(--text-soft); background: transparent; color: var(--text); padding: 7px 15px; border-radius: 999px; font: 500 .9rem var(--body); cursor: pointer; }
+.pill[aria-pressed="true"] { background: var(--paper); color: var(--ink); border-color: var(--paper); }
+.pill:focus-visible, button:focus-visible { outline: 3px solid var(--pink); outline-offset: 2px; }
+.spacer { flex: 1; }
+
+.stagebox { display: grid; place-items: center; }
+.stage { position: relative; width: 100%; aspect-ratio: 16 / 11; border-radius: 18px; overflow: hidden;
+  background: radial-gradient(ellipse at 50% 35%, #4d3632, #241a18 75%); box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); }
+.stage.phone { width: min(100%, 360px); aspect-ratio: 9 / 18.5; border-radius: 40px; border: 9px solid #111; }
+.hint { position: absolute; left: 0; right: 0; bottom: 3.5%; text-align: center; font: clamp(1.05rem, 2.2vw, 1.4rem) var(--hand); color: var(--text-soft); pointer-events: none; transition: opacity .4s; }
+
+/* ---------- card ---------- */
+.gate { position: absolute; left: 50%; top: 47%; aspect-ratio: .8; perspective: 2400px; cursor: pointer;
+  transform: translate(-50%, -50%) scale(var(--fit, 1)); transition: transform 1s cubic-bezier(.45,0,.2,1) .7s; }
+.art { position: absolute; inset: 0; background: var(--paper-2); border-radius: 5px; display: grid; place-items: center; box-shadow: 0 20px 44px rgba(0,0,0,.5); }
+.art svg { width: 86%; height: 86%; overflow: visible; }
+.art .s { fill: none; stroke: var(--red); stroke-width: 2.1; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 1; }
+.drawing .art .s { animation: draw 1.1s ease forwards; animation-delay: calc(var(--d) * 1s); }
+.art .w, .art .script { opacity: 0; transition: opacity 1.4s; }
+.washed .art .w, .washed .art .script { opacity: 1; }
+.art .script { font: 30px var(--hand); fill: var(--red); }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+
+.door { position: absolute; top: 0; bottom: 0; width: 50%; transform-style: preserve-3d; transition: transform 1.3s cubic-bezier(.45,0,.2,1) .35s; z-index: 2; }
+.door.l { left: 0; transform-origin: left center; }
+.door.r { right: 0; transform-origin: right center; }
+.open .door.l { transform: rotateY(-180deg); }
+.open .door.r { transform: rotateY(180deg); }
+.face { position: absolute; inset: 0; backface-visibility: hidden; }
+.out { background: var(--pine); background-image: radial-gradient(circle, rgba(255,255,255,.13) 1.5px, transparent 2px); background-size: 16px 16px; }
+.l .out { border-radius: 5px 0 0 5px; box-shadow: inset -2px 0 0 rgba(0,0,0,.25); }
+.r .out { border-radius: 0 5px 5px 0; }
+.in { transform: rotateY(180deg); background: var(--paper); box-shadow: 0 20px 44px rgba(0,0,0,.5); }
+.l .in { border-radius: 0 5px 5px 0; }
+.r .in { border-radius: 5px 0 0 5px; }
+.band { position: absolute; left: 0; right: 0; top: 46%; height: 8%; background: var(--pink); transition: transform .45s, opacity .45s; }
+.l .band { transform-origin: left; } .r .band { transform-origin: right; }
+.open .band { transform: scaleX(0); opacity: 0; }
+.gate .bow { position: absolute; left: 50%; top: 50%; width: 42%; translate: -50% -60%; z-index: 3; overflow: visible; transition: transform .45s cubic-bezier(.5,0,.75,0), opacity .45s; pointer-events: none; }
+.open .gate .bow { transform: translateY(45%) rotate(18deg) scale(.6); opacity: 0; }
+
+/* photos on the inside of each door */
+.snap { position: absolute; left: 13%; width: 74%; border: 0; padding: 5% 5% 0; background: #fffdf8; cursor: zoom-in; box-shadow: 0 4px 10px rgba(0,0,0,.22);
+  display: grid; gap: 2%; transform: rotate(var(--r)) scale(0); transition: transform .5s cubic-bezier(.2,1.6,.4,1); transition-delay: calc(1.6s + var(--i) * .15s); }
+.shown .snap { transform: rotate(var(--r)); }
+.shown .snap:hover { transform: rotate(0deg) scale(1.05); transition-delay: 0s; }
+.snap .ph { aspect-ratio: 1; }
+.snap .cap { font: clamp(10px, 1.6cqw, 17px)/1.1 var(--hand); color: var(--ink); padding: 3% 0 6%; text-align: center; }
+.in { container-type: inline-size; }
+.snap .cap { font-size: 9cqw; }
+
+/* note tag */
+.note { position: absolute; left: 50%; bottom: 9%; translate: -50% 0; border: 0; background: var(--paper-2); color: var(--red); padding: 8px 18px 8px 14px; border-radius: 4px;
+  font: 700 clamp(1rem, 2vw, 1.3rem) var(--hand); white-space: nowrap; cursor: pointer; box-shadow: 0 6px 16px rgba(0,0,0,.35); opacity: 0; transform: translateY(12px) rotate(-2deg); transition: opacity .5s, transform .5s; pointer-events: none; }
+.note::before { content: "✉"; margin-right: 8px; color: var(--pine); }
+.ready .note { opacity: 1; transform: rotate(-2deg); pointer-events: auto; }
+.ready .note:hover { transform: rotate(0) scale(1.05); }
+
+/* viewer */
+.viewer { position: absolute; inset: 0; z-index: 20; background: rgba(28, 19, 17, .92); display: grid; grid-template-rows: auto 1fr auto; padding: 4%; opacity: 0; pointer-events: none; transition: opacity .3s; }
+.viewer.on { opacity: 1; pointer-events: auto; }
+.v-top { display: flex; justify-content: space-between; align-items: center; color: var(--text-soft); font-size: .9rem; }
+.v-close { border: 0; background: rgba(255,255,255,.12); color: var(--text); width: 38px; height: 38px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; }
+.v-body { display: grid; place-items: center; min-height: 0; container-type: size; padding: 2% 0; }
+.v-card { background: #fffdf8; padding: 3.5% 3.5% 0; width: min(78cqw, 62cqh); box-shadow: 0 18px 40px rgba(0,0,0,.5); transform: rotate(-1.5deg); }
+.v-card .ph { aspect-ratio: 4 / 5; }
+.v-card .cap { font: clamp(15px, 4.5cqw, 24px)/1.2 var(--hand); color: var(--ink); text-align: center; padding: 4% 0 6%; }
+.v-letter { background: var(--paper-2); color: var(--ink); width: min(88cqw, 440px); max-height: 100cqh; overflow: auto; padding: 6% 7%; font: clamp(.95rem, 4.2cqw, 1.35rem)/1.3 var(--hand); white-space: pre-line; box-shadow: 0 18px 40px rgba(0,0,0,.5);
+  background-image: repeating-linear-gradient(transparent 0 1.3em, rgba(194,59,42,.12) 1.3em calc(1.3em + 1px)); }
+.v-letter b { color: var(--red); }
+.v-nav { display: flex; justify-content: center; align-items: center; gap: 14px; }
+.v-nav button { border: 0; background: var(--paper); color: var(--ink); width: 42px; height: 42px; border-radius: 50%; font-size: 1.4rem; cursor: pointer; }
+.v-nav button:disabled { opacity: .3; cursor: default; }
+.v-dots { display: flex; gap: 6px; }
+.v-dots i { width: 7px; height: 7px; border-radius: 50%; background: var(--text-soft); opacity: .4; }
+.v-dots i.on { opacity: 1; background: var(--pink); }
+
+/* placeholder photos */
+.ph { background: var(--g); position: relative; }
+.ph::after { content: attr(data-l); position: absolute; left: 0; right: 0; bottom: 8%; text-align: center; font: 600 .7rem var(--body); letter-spacing: .08em; text-transform: uppercase; color: rgba(255,255,255,.9); }
+
+/* ---------- journey ---------- */
+.journey h2 { margin: 0 0 4px; font: italic 600 1.5rem/1.2 var(--display); }
+.journey .sub { margin: 0 0 16px; color: var(--text-soft); font-size: .93rem; }
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; counter-reset: s; }
+.steps li { counter-increment: s; display: grid; grid-template-columns: 34px 1fr; gap: 10px; padding: 10px 12px; border-radius: 12px; transition: background .3s; }
+.steps li::before { content: counter(s); width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--bg-2); color: var(--text-soft); font: 600 .85rem var(--body); }
+.steps li.now { background: var(--bg-2); }
+.steps li.now::before { background: var(--pink); color: var(--ink); }
+.steps strong { display: block; font-weight: 600; }
+.steps span { color: var(--text-soft); font-size: .9rem; }
+.box { margin-top: 18px; padding: 16px 18px; border-radius: 14px; background: var(--bg-2); }
+.box h3 { margin: 0 0 8px; font: italic 600 1.15rem var(--display); }
+.box ul { margin: 0; padding-left: 1.1em; display: grid; gap: 4px; font-size: .92rem; }
+.box p { margin: 0; font-size: .92rem; color: var(--text-soft); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; transition-delay: 0s !important; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>The gatefold, <span>start to finish</span></h1>
+  <p class="lede">A working walkthrough of what someone sees after tapping your link. Photos live on the inside of the doors, the drawing is in the middle, and a note waits at the end. Try it in phone view too.</p>
+</header>
+
+<div class="grid">
+  <div>
+    <div class="controls">
+      <button class="pill" data-view="laptop" aria-pressed="true">Laptop</button>
+      <button class="pill" data-view="phone" aria-pressed="false">Phone</button>
+      <span class="spacer"></span>
+      <button class="pill" id="restart">Start over</button>
+    </div>
+    <div class="stagebox">
+      <div class="stage" id="stage">
+        <div class="gate" id="gate" role="button" tabindex="0" aria-label="Untie the bow to open the card">
+          <div class="art" id="art"></div>
+          <div class="door l"><div class="face out"><div class="band"></div></div><div class="face in" data-side="l"></div></div>
+          <div class="door r"><div class="face out"><div class="band"></div></div><div class="face in" data-side="r"></div></div>
+          <svg class="bow" id="bow" viewBox="0 0 100 90" aria-hidden="true"></svg>
+        </div>
+        <button class="note" id="note">a note for you</button>
+        <div class="viewer" id="viewer" role="dialog" aria-modal="true" aria-label="Photo viewer">
+          <div class="v-top"><span id="v-count"></span><button class="v-close" id="v-close" aria-label="Close">✕</button></div>
+          <div class="v-body" id="v-body"></div>
+          <div class="v-nav"><button id="v-prev" aria-label="Previous">‹</button><div class="v-dots" id="v-dots"></div><button id="v-next" aria-label="Next">›</button></div>
+        </div>
+        <span class="hint" id="hint">tap the bow</span>
+      </div>
+    </div>
+  </div>
+
+  <aside class="journey">
+    <h2>What they experience</h2>
+    <p class="sub">The highlighted step follows along as you click through the prototype.</p>
+    <ol class="steps" id="steps">
+      <li data-step="0"><div><strong>Link preview</strong><span>In iMessage or email they see your cover image and "tap to open". This comes from the card's preview settings.</span></div></li>
+      <li data-step="1"><div><strong>The closed card</strong><span>Green doors tied with a pink bow, a little snow. One instruction: tap the bow.</span></div></li>
+      <li data-step="2"><div><strong>Untie and open</strong><span>The bow slips off, the ribbon falls, the doors swing outward. The card steps back so all three panels fit.</span></div></li>
+      <li data-step="3"><div><strong>The drawing inks in</strong><span>Your tree draws itself in the center while photos pop onto both doors one by one.</span></div></li>
+      <li data-step="4"><div><strong>Look at photos</strong><span>Tap any photo to see it big with its caption. Swipe or use the arrows to go through all of them.</span></div></li>
+      <li data-step="5"><div><strong>Read the note</strong><span>A small tag says "a note for you". Tap it for your handwritten letter.</span></div></li>
+    </ol>
+
+    <div class="box">
+      <h3>What you'd prepare</h3>
+      <ul>
+        <li>1 drawing for the center (lines plus a color layer)</li>
+        <li>A pattern or drawing for the outside of the doors</li>
+        <li>4 photos (2 per door), up to 8 with smaller frames</li>
+        <li>A short caption for each photo</li>
+        <li>The note, about 60 to 120 words</li>
+      </ul>
+    </div>
+    <div class="box">
+      <h3>On phones</h3>
+      <p>Open flat, the three panels are wide, so on a phone they shrink to fit. The photos are still easy to tap, and the viewer shows them full size. If that feels too small, the other option is that the doors open and then you swipe through three full-screen panels.</p>
+    </div>
+  </aside>
+</div>
+</div>
+
+<script>
+// ---------- content (would come from card.json) ----------
+const photos = [
+  { side: "l", label: "photo 1", cap: "the tree, finally up", g: "linear-gradient(160deg,#f2b5a8,#c95d63)" },
+  { side: "l", label: "photo 2", cap: "cat vs. ornaments, round 4", g: "linear-gradient(160deg,#cfe0c3,#4f6b34)" },
+  { side: "r", label: "photo 3", cap: "first snow in atlanta", g: "linear-gradient(160deg,#c9d8ef,#5a74a6)" },
+  { side: "r", label: "photo 4", cap: "the whole crew", g: "linear-gradient(160deg,#f3d9a4,#c9962e)" },
+];
+const letter = `Dear you,
+
+This year was <b>a lot</b>, mostly the good kind. New city, new school, more cat chaos, more friends around the table.
+
+Thank you for being part of it. Wishing you a cozy, sparkly season and a very happy new year.
+
+<b>love, Anni</b>`;
+
+// ---------- stand-in drawing ----------
+const bowPath = (x, y, k = 1) => `M${x} ${y} c${-10*k} ${-9*k} ${-20*k} ${-2*k} ${-12*k} ${5*k} c${7*k} ${4*k} ${12*k} ${-2*k} ${12*k} ${-5*k} c0 ${3*k} ${5*k} ${9*k} ${12*k} ${5*k} c${8*k} ${-7*k} ${-2*k} ${-14*k} ${-12*k} ${-5*k} M${x} ${y} l${-6*k} ${16*k} M${x} ${y} l${6*k} ${16*k}`;
+const orn = (x, y, r) => `M${x - r} ${y} a${r} ${r} 0 1 0 ${2*r} 0 a${r} ${r} 0 1 0 ${-2*r} 0 M${x} ${y - r} l0 -6`;
+const strokes = [
+  "M150 52 L110 122 Q120 116 130 122 Q140 116 150 122 Q160 116 170 122 Q180 116 190 122 Z",
+  "M150 98 L88 192 Q100 184 112 192 Q124 184 136 192 Q148 184 160 192 Q172 184 184 192 Q196 184 212 192 Z",
+  "M150 152 L66 272 Q80 264 94 272 Q108 264 122 272 Q136 264 150 272 Q164 264 178 272 Q192 264 206 272 Q220 264 234 272 Z",
+  "M141 272 L141 292 L159 292 L159 272", "M70 302 C70 286 230 286 230 302 C230 318 70 318 70 302",
+  "M150 20 l7 15 16 2 -12 11 3 16 -14 -8 -14 8 3 -16 -12 -11 16 -2Z",
+  bowPath(150, 104, 1.1), bowPath(118, 168), bowPath(190, 226), bowPath(104, 244),
+  orn(176, 150, 8), orn(128, 214, 9), orn(206, 256, 8), orn(160, 236, 7),
+  "M118 136 Q150 152 182 136", "M98 204 Q150 226 204 204",
+  "M40 70 l0 18 M31 79 l18 0", "M258 96 l0 14 M251 103 l14 0", "M44 200 l0 12 M38 206 l12 0", "M262 222 l0 16 M254 230 l16 0",
+];
+document.getElementById("art").innerHTML = `<svg viewBox="0 0 300 360" aria-label="Ink drawing of a decorated tree">
+  <path class="w" d="M150 52 L110 122 L190 122Z M150 98 L88 192 L212 192Z M150 152 L66 272 L234 272Z" fill="#4f6b34" fill-opacity=".2"/>
+  <ellipse class="w" cx="150" cy="302" rx="80" ry="15" fill="#e8a6b5"/>
+  <path class="w" d="M150 20 l7 15 16 2 -12 11 3 16 -14 -8 -14 8 3 -16 -12 -11 16 -2Z" fill="#c9962e"/>
+  <circle class="w" cx="176" cy="150" r="8" fill="#c23b2a" fill-opacity=".7"/><circle class="w" cx="128" cy="214" r="9" fill="#c9962e" fill-opacity=".8"/>
+  <circle class="w" cx="206" cy="256" r="8" fill="#e8a6b5"/><circle class="w" cx="160" cy="236" r="7" fill="#c23b2a" fill-opacity=".7"/>
+  ${strokes.map((d, i) => `<path class="s" pathLength="1" style="--d:${(i * 0.13).toFixed(2)}" d="${d}"/>`).join("")}
+  <text class="script" x="150" y="350" text-anchor="middle">hello, holidays</text></svg>`;
+document.getElementById("bow").innerHTML = `
+  <path d="M46 40 C40 60 34 72 26 88 L36 86 L42 90 C46 72 48 58 50 44Z" fill="#e8a6b5" stroke="#2a1d1b" stroke-width="1.5"/>
+  <path d="M54 40 C60 60 66 72 74 88 L64 86 L58 90 C54 72 52 58 50 44Z" fill="#e8a6b5" stroke="#2a1d1b" stroke-width="1.5"/>
+  <path d="M50 38 C30 10 4 14 6 34 C8 52 32 50 50 38Z" fill="#e8a6b5" stroke="#2a1d1b" stroke-width="1.5"/>
+  <path d="M50 38 C70 10 96 14 94 34 C92 52 68 50 50 38Z" fill="#e8a6b5" stroke="#2a1d1b" stroke-width="1.5"/>
+  <ellipse cx="50" cy="38" rx="8" ry="9" fill="#d9879a" stroke="#2a1d1b" stroke-width="1.5"/>`;
+
+// photos on door insides
+const tilts = ["-4deg", "3deg", "3deg", "-3deg"];
+photos.forEach((p, i) => {
+  const face = document.querySelector(`.in[data-side="${p.side}"]`);
+  const slot = face.children.length;
+  const b = document.createElement("button");
+  b.className = "snap";
+  b.style.cssText = `top:${slot ? 51 : 6}%;--r:${tilts[i]};--i:${i}`;
+  b.setAttribute("aria-label", `View photo: ${p.cap}`);
+  b.innerHTML = `<div class="ph" data-l="${p.label}" style="--g:${p.g}"></div><div class="cap">${p.cap}</div>`;
+  b.addEventListener("click", (e) => { e.stopPropagation(); openViewer(i); });
+  face.append(b);
+});
+
+// ---------- flow ----------
+const stage = document.getElementById("stage");
+const gate = document.getElementById("gate");
+const hint = document.getElementById("hint");
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const wait = (ms) => new Promise((r) => setTimeout(r, reduce ? 0 : ms));
+const DRAW_MS = strokes.length * 130 + 1100;
+let opened = false, run = 0;
+
+function setStep(n) { document.querySelectorAll("#steps li").forEach((li) => li.classList.toggle("now", +li.dataset.step === n)); }
+
+function sizeCard() {
+  const W = stage.clientWidth, H = stage.clientHeight;
+  const h = Math.min(H * 0.7, (W * 0.84) / 0.8);
+  gate.style.height = `${h}px`;
+  return { W, h };
+}
+function fitOpen() {
+  const { W, h } = sizeCard();
+  const spread = h * 0.8 * 2;
+  gate.style.setProperty("--fit", Math.min(1, (W * 0.94) / spread).toFixed(3));
+}
+
+async function open() {
+  if (opened) return;
+  opened = true; const my = ++run;
+  stage.classList.add("open"); hint.style.opacity = 0; setStep(2);
+  fitOpen();
+  await wait(1500); if (my !== run) return;
+  stage.classList.add("drawing", "shown"); setStep(3);
+  await wait(DRAW_MS - 500); if (my !== run) return;
+  stage.classList.add("washed");
+  await wait(600); if (my !== run) return;
+  stage.classList.add("ready"); setStep(4);
+  hint.textContent = "tap a photo"; hint.style.opacity = 1;
+}
+gate.addEventListener("click", open);
+gate.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
+
+function restart() {
+  run++; opened = false;
+  stage.classList.remove("open", "drawing", "washed", "shown", "ready");
+  gate.style.setProperty("--fit", 1); sizeCard();
+  hint.textContent = "tap the bow"; hint.style.opacity = 1; closeViewer(); setStep(1);
+}
+document.getElementById("restart").addEventListener("click", restart);
+document.querySelectorAll("[data-view]").forEach((b) => b.addEventListener("click", () => {
+  document.querySelectorAll("[data-view]").forEach((x) => x.setAttribute("aria-pressed", x === b));
+  stage.classList.toggle("phone", b.dataset.view === "phone");
+  restart();
+}));
+addEventListener("resize", () => (opened ? fitOpen() : sizeCard()));
+
+// ---------- viewer ----------
+const viewer = document.getElementById("viewer"), vBody = document.getElementById("v-body"), vCount = document.getElementById("v-count"),
+  vDots = document.getElementById("v-dots"), vPrev = document.getElementById("v-prev"), vNext = document.getElementById("v-next");
+const items = [...photos.map((p) => ({ type: "photo", ...p })), { type: "letter" }];
+let vi = 0;
+vDots.innerHTML = items.map(() => "<i></i>").join("");
+function renderViewer() {
+  const it = items[vi];
+  vBody.innerHTML = it.type === "photo"
+    ? `<figure class="v-card" style="margin:0"><div class="ph" data-l="${it.label}" style="--g:${it.g}"></div><figcaption class="cap">${it.cap}</figcaption></figure>`
+    : `<div class="v-letter">${letter}</div>`;
+  vCount.textContent = it.type === "photo" ? `photo ${vi + 1} of ${photos.length}` : "the note";
+  vPrev.disabled = vi === 0; vNext.disabled = vi === items.length - 1;
+  [...vDots.children].forEach((d, k) => d.classList.toggle("on", k === vi));
+  setStep(it.type === "photo" ? 4 : 5);
+}
+function openViewer(i) { vi = i; renderViewer(); viewer.classList.add("on"); document.getElementById("v-close").focus(); }
+function closeViewer() { viewer.classList.remove("on"); }
+document.getElementById("note").addEventListener("click", () => openViewer(items.length - 1));
+document.getElementById("v-close").addEventListener("click", closeViewer);
+vPrev.addEventListener("click", () => { if (vi > 0) { vi--; renderViewer(); } });
+vNext.addEventListener("click", () => { if (vi < items.length - 1) { vi++; renderViewer(); } });
+addEventListener("keydown", (e) => {
+  if (!viewer.classList.contains("on")) return;
+  if (e.key === "Escape") closeViewer();
+  if (e.key === "ArrowRight") vNext.click();
+  if (e.key === "ArrowLeft") vPrev.click();
+});
+let sx = null;
+viewer.addEventListener("pointerdown", (e) => (sx = e.clientX));
+viewer.addEventListener("pointerup", (e) => { if (sx == null) return; const dx = e.clientX - sx; if (Math.abs(dx) > 40) (dx < 0 ? vNext : vPrev).click(); sx = null; });
+
+sizeCard(); setStep(1);
+</script>
+</body>
+</html>
