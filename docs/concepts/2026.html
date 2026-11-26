@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2026 Card Concepts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Fraunces:ital,opsz,wght@0,9..144,400;1,9..144,400;1,9..144,600&family=Figtree:wght@400;500;600&display=swap">
+<style>
+/* Layout idea: a designer's pinboard. Live opener demos in phone frames, then layout wireframes, then an interaction menu. */
+:root {
+  --paper: #f6e4df;
+  --paper-2: #fdf6f1;
+  --ink: #2a1d1b;
+  --ink-soft: #6e5753;
+  --red: #c23b2a;
+  --pine: #4f6b34;
+  --pink: #e8a6b5;
+  --gold: #c9962e;
+  --line: #e4c6bf;
+  --display: "Fraunces", Georgia, serif;
+  --hand: "Caveat", "Bradley Hand", cursive;
+  --body: "Figtree", system-ui, sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--paper); color: var(--ink); font: 16px/1.55 var(--body); }
+a { color: var(--red); }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 20px; }
+header { padding: 56px 0 28px; display: grid; gap: 18px; }
+h1 { font: italic 400 clamp(2.4rem, 6vw, 4rem)/1 var(--display); margin: 0; text-wrap: balance; }
+h1 span { color: var(--red); }
+.lede { max-width: 62ch; margin: 0; color: var(--ink-soft); }
+.swatches { display: flex; flex-wrap: wrap; gap: 10px; }
+.sw { display: flex; align-items: center; gap: 8px; padding: 6px 12px 6px 6px; background: var(--paper-2); border-radius: 999px; font-size: .85rem; }
+.sw i { width: 22px; height: 22px; border-radius: 50%; display: block; border: 1px solid rgba(0,0,0,.08); }
+.reads { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font: 1.25rem/1 var(--hand); padding: 6px 12px; border: 1.5px solid var(--red); color: var(--red); border-radius: 999px; transform: rotate(-1deg); }
+.chip:nth-child(even) { transform: rotate(1.2deg); border-color: var(--pine); color: var(--pine); }
+
+section { padding: 40px 0; border-top: 1.5px dashed var(--line); }
+h2 { font: italic 600 clamp(1.7rem, 3.6vw, 2.3rem)/1.1 var(--display); margin: 0 0 6px; }
+.sub { margin: 0 0 26px; color: var(--ink-soft); max-width: 62ch; }
+
+/* ---------- opener demos ---------- */
+.demos { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 28px 22px; }
+.demo { display: grid; gap: 12px; align-content: start; }
+.phone { position: relative; aspect-ratio: 9 / 15; background: var(--paper-2); border-radius: 26px; overflow: hidden;
+  box-shadow: 0 1px 0 #fff inset, 0 14px 30px rgba(90, 40, 40, .16); border: 6px solid #fff; cursor: pointer; }
+.phone:focus-visible { outline: 3px solid var(--red); outline-offset: 3px; }
+.phone .tap { position: absolute; left: 0; right: 0; bottom: 14px; text-align: center; font: 1.2rem var(--hand); color: var(--ink-soft); transition: opacity .3s; pointer-events: none; }
+.phone.played .tap { opacity: 0; }
+.demo h3 { margin: 0; font: italic 600 1.3rem/1.2 var(--display); display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.demo h3 small { font: 600 .7rem var(--body); letter-spacing: .08em; text-transform: uppercase; color: var(--pine); white-space: nowrap; }
+.demo p { margin: 0; font-size: .93rem; }
+.demo dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 4px 10px; font-size: .85rem; }
+.demo dt { font-weight: 600; color: var(--ink-soft); }
+.demo dd { margin: 0; }
+.replay { justify-self: start; border: 1.5px solid var(--ink); background: transparent; border-radius: 999px; padding: 5px 14px; font: 500 .85rem var(--body); cursor: pointer; }
+.replay:hover { background: var(--ink); color: var(--paper-2); }
+.reveal-card { position: absolute; inset: 14% 12%; background: #fff; border-radius: 6px; box-shadow: 0 10px 24px rgba(0,0,0,.18);
+  display: grid; place-items: center; text-align: center; font: italic 1.6rem/1.1 var(--display); color: var(--red);
+  z-index: 10; opacity: 0; transform: scale(.5) translateY(30px); transition: opacity .5s, transform .7s cubic-bezier(.2,1.4,.4,1); pointer-events: none; }
+.reveal-card em { display: block; font: 1.1rem var(--hand); color: var(--pine); font-style: normal; margin-top: 4px; }
+.done .reveal-card { opacity: 1; transform: none; }
+
+/* 1. untie the bow */
+.bow-env { position: absolute; left: 10%; right: 10%; top: 34%; aspect-ratio: 1.45; perspective: 800px; transition: transform .8s, opacity .6s; }
+.bow-env > * { position: absolute; }
+.bow-env .back { inset: 0; background: #b3473b; border-radius: 4px; }
+.bow-env .letter { left: 7%; right: 7%; top: 6%; height: 86%; background: #fff; border-radius: 3px; transition: transform .7s cubic-bezier(.3,1.3,.5,1); }
+.bow-env .front { inset: 0; background: var(--red); border-radius: 4px; clip-path: polygon(0 0, 50% 52%, 100% 0, 100% 100%, 0 100%); }
+.bow-env .flap { left: 0; right: 0; top: 0; height: 56%; transform-origin: top; transition: transform .6s ease; z-index: 3;
+  background: #d4574a; clip-path: polygon(0 0, 100% 0, 50% 100%); }
+.bow-env .ribbon { left: 0; right: 0; top: 47%; height: 9%; background: var(--pink); z-index: 4; transition: transform .5s, opacity .5s; transform-origin: left; }
+.bow-env svg.bow { left: 32%; top: 22%; width: 36%; z-index: 5; overflow: visible; }
+.bow .loop-l, .bow .loop-r { transform-box: fill-box; transition: transform .45s ease, opacity .45s; }
+.bow .loop-l { transform-origin: right center; } .bow .loop-r { transform-origin: left center; }
+.bow .tail { transition: transform .8s cubic-bezier(.5,0,.75,0), opacity .8s; transform-box: fill-box; transform-origin: top; }
+.s1 .bow .loop-l { transform: scaleX(.1) rotate(30deg); opacity: 0; }
+.s1 .bow .loop-r { transform: scaleX(.1) rotate(-30deg); opacity: 0; }
+.s1 .bow .tail { transform: translateY(160px) rotate(20deg); opacity: 0; }
+.s1 .bow .knot { opacity: 0; transition: opacity .3s .2s; }
+.s1 .bow-env .ribbon { transform: scaleX(0); opacity: 0; }
+.s2 .bow-env .flap { transform: rotateX(180deg); z-index: 1; }
+.s2 .bow-env .letter { transform: translateY(-55%); }
+.done .bow-env { transform: translateY(70%); opacity: 0; }
+
+/* 2. ink draws itself */
+.ink svg { position: absolute; inset: 8% 10% 12%; width: 80%; height: 80%; overflow: visible; }
+.ink .stroke { fill: none; stroke: var(--red); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 1; }
+.ink.played .stroke { animation: draw 1.4s ease forwards; animation-delay: calc(var(--i) * .22s); }
+.ink .wash { opacity: 0; transition: opacity 1.2s 2.4s; }
+.ink.played .wash { opacity: 1; }
+.ink .script { font: 30px var(--hand); fill: var(--red); opacity: 0; transition: opacity .8s 2.9s; }
+.ink.played .script { opacity: 1; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+
+/* 3. stockings */
+.mantel { position: absolute; left: 6%; right: 6%; top: 24%; height: 5%; background: #fff; border: 2px solid var(--ink); border-radius: 3px; z-index: 3; }
+.mantel-wall { position: absolute; left: 12%; right: 12%; top: 29%; bottom: 10%; border: 2px solid var(--ink); border-top: 0; background: repeating-linear-gradient(0deg, transparent 0 18px, rgba(194,59,42,.12) 18px 20px); }
+.stockings { position: absolute; left: 10%; right: 10%; top: 27%; display: flex; justify-content: space-around; z-index: 4; }
+.stocking { position: relative; width: 26%; aspect-ratio: .62; border: 0; padding: 0; background: none; cursor: pointer; transform-origin: 50% 0; }
+.stocking svg { width: 100%; height: 100%; overflow: visible; display: block; }
+.stocking:hover { animation: jig .5s; }
+.stocking .peek { position: absolute; left: 22%; width: 52%; top: 10%; height: 40%; background: #fff; border: 1.5px solid var(--ink); border-radius: 2px; z-index: -1; transition: transform .6s cubic-bezier(.3,1.3,.5,1); }
+.stocking.picked { animation: jig .5s; }
+.stocking.picked .peek { transform: translateY(-80%); }
+.stocking .name { position: absolute; left: 0; right: 0; top: 8%; text-align: center; font: 15px var(--hand); color: var(--ink); }
+@keyframes jig { 25% { transform: rotate(-7deg); } 75% { transform: rotate(6deg); } }
+
+/* 4. swat the ornament */
+.swat .branch { position: absolute; right: -10%; top: 6%; width: 95%; overflow: visible; }
+.swat .orn { position: absolute; left: 44%; top: 14%; width: 22%; transform-origin: 50% 0; animation: idle-swing 3s ease-in-out infinite; }
+.swat .orn svg { width: 100%; overflow: visible; display: block; }
+.swat .paw { position: absolute; left: -46%; top: 38%; width: 40%; transition: transform .35s cubic-bezier(.3,1.6,.5,1); }
+.swat.s1 .paw { transform: translateX(95%) rotate(-12deg); }
+.swat.s2 .paw { transform: translateX(-10%); transition-duration: .6s; }
+.swat.s1 .orn { animation: hit .5s ease-out forwards; }
+.swat.s2 .orn { animation: none; transform: translateY(160%) rotate(40deg); opacity: 0; transition: transform .8s cubic-bezier(.5,0,.75,0), opacity .4s .5s; }
+@keyframes idle-swing { 50% { transform: rotate(4deg); } 0%, 100% { transform: rotate(-4deg); } }
+@keyframes hit { 40% { transform: rotate(-38deg); } 100% { transform: rotate(-24deg); } }
+
+/* 5. ornament gallery */
+.gallery svg.tree { position: absolute; left: 8%; right: 8%; top: 9%; width: 84%; overflow: visible; }
+.gallery .ob { position: absolute; width: 17%; aspect-ratio: 1; border-radius: 50%; border: 0; padding: 0; cursor: pointer; perspective: 400px; background: none; }
+.gallery .ob span { position: absolute; inset: 0; border-radius: 50%; backface-visibility: hidden; transition: transform .6s; display: grid; place-items: center; font: 700 1rem var(--hand); }
+.gallery .ob .f { background: radial-gradient(circle at 35% 30%, #fff8 0 12%, transparent 13%), var(--c); box-shadow: 0 2px 4px rgba(0,0,0,.2); }
+.gallery .ob .b { background: linear-gradient(135deg, #f2c9b8, #b9d2c0); transform: rotateY(180deg); color: var(--ink); border: 3px solid #fff; box-shadow: 0 3px 8px rgba(0,0,0,.25); }
+.gallery .ob.on .f { transform: rotateY(-180deg); }
+.gallery .ob.on .b { transform: rotateY(0); }
+.gallery .ob:hover:not(.on) { transform: scale(1.08); }
+.gallery .count { position: absolute; left: 0; right: 0; top: 4%; text-align: center; font: 1.15rem var(--hand); color: var(--pine); }
+.gallery .star { transition: fill .5s, filter .5s; }
+.gallery.lit .star { fill: var(--gold); filter: drop-shadow(0 0 8px var(--gold)); }
+
+/* ---------- layouts ---------- */
+.layouts { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 28px 22px; }
+.lay { display: grid; gap: 10px; align-content: start; }
+.frame { position: relative; aspect-ratio: 4 / 5; background: var(--paper-2); border: 2px solid var(--ink); border-radius: 4px; overflow: hidden; }
+.frame.tall { aspect-ratio: 4 / 5; background: repeating-linear-gradient(var(--paper-2) 0 36px, #f3e8e2 36px 37px); }
+.frame > div { position: absolute; display: grid; place-items: center; text-align: center; font: 1rem/1.05 var(--hand); color: var(--ink-soft); }
+.zone-draw { border: 2px dashed var(--red); color: var(--red) !important; border-radius: 4px; }
+.zone-photo { border: 2px solid var(--ink); background: #fff; box-shadow: 2px 3px 0 rgba(0,0,0,.1); }
+.zone-text { color: var(--red) !important; font-size: 1.45rem !important; }
+.zone-round { border-radius: 50%; }
+.lay h3 { margin: 0; font: italic 600 1.25rem/1.2 var(--display); }
+.lay p { margin: 0; font-size: .92rem; }
+.lay .pair { font-size: .82rem; color: var(--pine); font-weight: 600; }
+
+/* ---------- interaction menu ---------- */
+.menu { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.item { background: var(--paper-2); border-radius: 12px; padding: 14px 16px; display: grid; gap: 4px; }
+.item strong { font: 600 1rem var(--body); display: flex; justify-content: space-between; gap: 8px; }
+.tag { font: 600 .68rem var(--body); letter-spacing: .07em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; white-space: nowrap; align-self: center; }
+.tag.have { background: #dfe8d3; color: var(--pine); }
+.tag.small { background: #f8dcc8; color: #9a4b14; }
+.tag.med { background: #f6d0d6; color: #9b2a3c; }
+.item span { font-size: .9rem; color: var(--ink-soft); }
+
+/* ---------- drawing guide ---------- */
+.guide { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 22px; }
+.guide ol { margin: 0; padding-left: 1.2em; display: grid; gap: 8px; }
+.guide h3 { margin: 0 0 10px; font: italic 600 1.25rem var(--display); }
+.note { background: var(--paper-2); border-left: 4px solid var(--red); padding: 14px 16px; border-radius: 0 10px 10px 0; font-size: .93rem; }
+footer { padding: 30px 0 60px; color: var(--ink-soft); font-size: .88rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>2026 card <span>concepts</span></h1>
+  <p class="lede">Five ways the card could open, four ways to lay it out, and a menu of small interactions. Everything is drawn here as a rough stand-in for your own drawings. Tap each phone to play it.</p>
+  <div class="reads" aria-label="What the inspiration has in common">
+    <span class="chip">hand-inked lines</span><span class="chip">bows on everything</span><span class="chip">cat in the tree</span>
+    <span class="chip">the mantel</span><span class="chip">two-color vintage print</span><span class="chip">pink, a little extra</span>
+  </div>
+  <div class="swatches" aria-label="Palette pulled from the inspiration">
+    <span class="sw"><i style="background:#f6e4df"></i>blush paper</span>
+    <span class="sw"><i style="background:#c23b2a"></i>ink red</span>
+    <span class="sw"><i style="background:#4f6b34"></i>pine</span>
+    <span class="sw"><i style="background:#e8a6b5"></i>bow pink</span>
+    <span class="sw"><i style="background:#c9962e"></i>gold star</span>
+    <span class="sw"><i style="background:#2a1d1b"></i>black ink</span>
+  </div>
+</header>
+
+<!-- ================= OPENERS ================= -->
+<section>
+  <h2>Opening experiences</h2>
+  <p class="sub">What happens between tapping the link and seeing the card. Each one would become its own opener file, so you can use a different one every year.</p>
+
+  <div class="demos">
+
+    <!-- 1 bow -->
+    <div class="demo">
+      <div class="phone" id="d1" tabindex="0" role="button" aria-label="Play untie the bow">
+        <div class="bow-env">
+          <div class="back"></div><div class="letter"></div><div class="front"></div><div class="flap"></div><div class="ribbon"></div>
+          <svg class="bow" viewBox="0 0 100 90" aria-hidden="true">
+            <path class="tail" d="M46 40 C40 60 34 72 26 88 L36 86 L42 90 C46 72 48 58 50 44Z" fill="#e8a6b5" stroke="#2a1d1b" stroke-width="1.5"/>
+            <path class="tail" d="M54 40 C60 60 66 72 74 88 L64 86 L58 90 C54 72 52 58 50 44Z" fill="#e8a6b5" stroke="#2a1d1b" stroke-width="1.5"/>
+            <path class="loop-l" d="M50 38 C30 10 4 14 6 34 C8 52 32 50 50 38Z" fill="#e8a6b5" stroke="#2a1d1b" stroke-width="1.5"/>
+            <path class="loop-r" d="M50 38 C70 10 96 14 94 34 C92 52 68 50 50 38Z" fill="#e8a6b5" stroke="#2a1d1b" stroke-width="1.5"/>
+            <ellipse class="knot" cx="50" cy="38" rx="8" ry="9" fill="#d9879a" stroke="#2a1d1b" stroke-width="1.5"/>
+          </svg>
+        </div>
+        <div class="reveal-card">Happy<br>Holidays<em>your card here</em></div>
+        <span class="tap">tap to untie</span>
+      </div>
+      <h3>Untie the bow <small>small build</small></h3>
+      <p>The envelope you already have, but sealed with a big drawn bow. Tap and the loops slip loose, the tails fall away, then the flap opens.</p>
+      <dl><dt>You draw</dt><dd>envelope front, bow loops, two tails, knot</dd><dt>Builds on</dt><dd>existing envelope opener</dd></dl>
+      <button class="replay" data-for="d1">Replay</button>
+    </div>
+
+    <!-- 2 ink -->
+    <div class="demo">
+      <div class="phone ink" id="d2" tabindex="0" role="button" aria-label="Play ink draws itself">
+        <svg viewBox="0 0 200 260" aria-hidden="true">
+          <path class="wash" d="M100 40 L160 200 L40 200Z" fill="#4f6b34" fill-opacity=".18"/>
+          <ellipse class="wash" cx="100" cy="222" rx="70" ry="10" fill="#e8a6b5"/>
+          <path class="stroke" style="--i:0" pathLength="1" d="M100 40 C92 70 70 96 58 120 C76 118 84 116 90 114 C78 140 60 164 40 200 L160 200 C140 164 122 140 110 114 C116 116 124 118 142 120 C130 96 108 70 100 40"/>
+          <path class="stroke" style="--i:1" pathLength="1" d="M93 200 L93 214 L107 214 L107 200"/>
+          <path class="stroke" style="--i:2" pathLength="1" d="M100 22 l4 9 10 1 -8 6 3 10 -9 -5 -9 5 3 -10 -8 -6 10 -1Z"/>
+          <path class="stroke" style="--i:3" pathLength="1" d="M70 150 C80 160 100 162 128 150 M64 178 C90 190 116 188 140 176"/>
+          <path class="stroke" style="--i:4" pathLength="1" d="M88 128 c-8 -8 -16 -2 -10 4 c6 4 10 -2 10 -4 c0 2 4 8 10 4 c6 -6 -2 -12 -10 -4 M88 128 l-6 14 M88 128 l6 14"/>
+          <path class="stroke" style="--i:5" pathLength="1" d="M30 70 l0 14 M23 77 l14 0 M168 96 l0 12 M162 102 l12 0 M40 150 l0 10 M35 155 l10 0"/>
+          <text class="script" x="100" y="252" text-anchor="middle">hello, holidays</text>
+        </svg>
+        <span class="tap">tap to draw</span>
+      </div>
+      <h3>Ink draws itself <small>medium build</small></h3>
+      <p>A blank page. Tap and your line drawing traces itself stroke by stroke like a pen on paper, then the color washes in underneath. Made for your red-ink style.</p>
+      <dl><dt>You draw</dt><dd>line art exported as SVG, color fills as a separate layer</dd><dt>Builds on</dt><dd>new opener plus a draw-on layer type</dd></dl>
+      <button class="replay" data-for="d2">Replay</button>
+    </div>
+
+    <!-- 3 stockings -->
+    <div class="demo">
+      <div class="phone" id="d3" aria-label="Pick a stocking">
+        <div class="mantel"></div><div class="mantel-wall"></div>
+        <div class="stockings">
+          <button class="stocking" aria-label="Open the stocking marked you"><span class="peek"></span>
+            <svg viewBox="0 0 60 96"><rect x="4" y="2" width="44" height="16" rx="3" fill="#fff" stroke="#2a1d1b" stroke-width="2"/><path d="M8 18 L44 18 L44 62 C44 70 50 74 56 78 C62 84 56 94 46 92 L20 86 C8 84 6 74 8 64Z" fill="#c23b2a" stroke="#2a1d1b" stroke-width="2"/></svg><span class="name">you</span></button>
+          <button class="stocking" aria-label="Open the stocking with a bow"><span class="peek"></span>
+            <svg viewBox="0 0 60 96"><rect x="4" y="2" width="44" height="16" rx="3" fill="#fff" stroke="#2a1d1b" stroke-width="2"/><path d="M8 18 L44 18 L44 62 C44 70 50 74 56 78 C62 84 56 94 46 92 L20 86 C8 84 6 74 8 64Z" fill="#4f6b34" stroke="#2a1d1b" stroke-width="2"/><path d="M26 34 c-10 -8 -16 2 -8 6 c6 2 8 -4 8 -6 c0 2 2 8 8 6 c8 -4 2 -14 -8 -6 l-4 12 m4 -12 l4 12" fill="none" stroke="#e8a6b5" stroke-width="2.5"/></svg><span class="name">♥</span></button>
+          <button class="stocking" aria-label="Open the stocking marked meow"><span class="peek"></span>
+            <svg viewBox="0 0 60 96"><rect x="4" y="2" width="44" height="16" rx="3" fill="#fff" stroke="#2a1d1b" stroke-width="2"/><path d="M8 18 L44 18 L44 62 C44 70 50 74 56 78 C62 84 56 94 46 92 L20 86 C8 84 6 74 8 64Z" fill="#e8a6b5" stroke="#2a1d1b" stroke-width="2"/></svg><span class="name">meow</span></button>
+        </div>
+        <div class="reveal-card">Happy<br>Holidays<em>from the stocking</em></div>
+        <span class="tap">pick a stocking</span>
+      </div>
+      <h3>Pick a stocking <small>medium build</small></h3>
+      <p>A drawn mantel with stockings. The viewer picks one, it jiggles, and the card slides up out of it. Stockings could carry names, or each could hold a different photo.</p>
+      <dl><dt>You draw</dt><dd>mantel scene as background, each stocking separately</dd><dt>Builds on</dt><dd>new opener</dd></dl>
+      <button class="replay" data-for="d3">Replay</button>
+    </div>
+
+    <!-- 4 swat -->
+    <div class="demo">
+      <div class="phone swat" id="d4" tabindex="0" role="button" aria-label="Play swat the ornament">
+        <svg class="branch" viewBox="0 0 240 90" aria-hidden="true">
+          <path d="M240 30 C190 26 140 22 80 30" stroke="#4f6b34" stroke-width="3" fill="none"/>
+          <g stroke="#4f6b34" stroke-width="2" stroke-linecap="round">
+            <path d="M220 29 l-10 -12 M220 29 l-10 12 M200 27 l-10 -12 M200 27 l-10 12 M180 26 l-10 -12 M180 26 l-10 12 M160 25 l-10 -12 M160 25 l-10 12 M140 25 l-10 -12 M140 25 l-10 12 M120 26 l-10 -12 M120 26 l-10 12 M100 28 l-10 -12 M100 28 l-10 12"/>
+          </g>
+        </svg>
+        <div class="orn"><svg viewBox="0 0 40 70" aria-hidden="true"><path d="M20 0 V22" stroke="#2a1d1b" stroke-width="1.2"/><rect x="15" y="20" width="10" height="6" rx="1" fill="#c9962e"/><circle cx="20" cy="44" r="18" fill="#c23b2a" stroke="#2a1d1b" stroke-width="1.5"/><circle cx="13" cy="38" r="4" fill="#fff" opacity=".5"/></svg></div>
+        <svg class="paw" viewBox="0 0 120 70" aria-hidden="true">
+          <path d="M0 22 L70 16 C96 12 112 26 110 40 C108 56 92 62 70 56 L0 52Z" fill="#fdf6f1" stroke="#2a1d1b" stroke-width="2"/>
+          <ellipse cx="82" cy="38" rx="11" ry="9" fill="#e8a6b5"/><circle cx="100" cy="26" r="5" fill="#e8a6b5"/><circle cx="104" cy="40" r="5" fill="#e8a6b5"/><circle cx="98" cy="53" r="4.5" fill="#e8a6b5"/>
+        </svg>
+        <div class="reveal-card">Happy<br>Holidays<em>caught it</em></div>
+        <span class="tap">tap the ornament</span>
+      </div>
+      <h3>Swat the ornament <small>medium build</small></h3>
+      <p>A paw reaches in from off screen, bats the ornament, it swings and drops, and the card pops up where it fell. Your cat-in-the-tree theme as the opening moment.</p>
+      <dl><dt>You draw</dt><dd>branch, ornament, paw (the paw can be your own cat)</dd><dt>Builds on</dt><dd>new opener</dd></dl>
+      <button class="replay" data-for="d4">Replay</button>
+    </div>
+
+    <!-- 5 gallery -->
+    <div class="demo">
+      <div class="phone gallery" id="d5" aria-label="Open all four ornaments">
+        <div class="count">0 of 4 opened</div>
+        <svg class="tree" viewBox="0 0 200 250" aria-hidden="true">
+          <path class="star" d="M100 6 l6 13 14 2 -10 9 3 14 -13 -7 -13 7 3 -14 -10 -9 14 -2Z" fill="none" stroke="#2a1d1b" stroke-width="2"/>
+          <path d="M100 40 L170 220 L30 220Z" fill="#4f6b34" opacity=".2" stroke="#4f6b34" stroke-width="2.5" stroke-linejoin="round"/>
+          <path d="M60 140 C90 156 120 154 150 140 M45 185 C90 204 130 200 160 184" stroke="#c9962e" stroke-width="2" fill="none" stroke-dasharray="2 6" stroke-linecap="round"/>
+          <rect x="90" y="220" width="20" height="16" fill="#8a5a3a"/>
+        </svg>
+        <button class="ob" style="left:42%;top:30%;--c:#c23b2a" aria-label="Open ornament 1"><span class="f"></span><span class="b">pic 1</span></button>
+        <button class="ob" style="left:27%;top:52%;--c:#e8a6b5" aria-label="Open ornament 2"><span class="f"></span><span class="b">pic 2</span></button>
+        <button class="ob" style="left:56%;top:50%;--c:#c9962e" aria-label="Open ornament 3"><span class="f"></span><span class="b">pic 3</span></button>
+        <button class="ob" style="left:40%;top:68%;--c:#c23b2a" aria-label="Open ornament 4"><span class="f"></span><span class="b">pic 4</span></button>
+        <span class="tap">tap each ornament</span>
+      </div>
+      <h3>Ornament reveal <small>medium build</small></h3>
+      <p>The tree is the opener. Each ornament flips over to show a photo. Open them all and the star lights up, then the letter appears. Slower and more of a game.</p>
+      <dl><dt>You draw</dt><dd>tree, star, ornament fronts</dd><dt>Builds on</dt><dd>new opener, photos come from card.json</dd></dl>
+      <button class="replay" data-for="d5">Replay</button>
+    </div>
+
+  </div>
+</section>
+
+<!-- ================= LAYOUTS ================= -->
+<section>
+  <h2>Card layouts</h2>
+  <p class="sub">What people see once it's open. Red dashed boxes are your drawings. Black boxes are photos. All on the 1080 × 1350 frame the system uses.</p>
+  <div class="layouts">
+
+    <div class="lay">
+      <div class="frame">
+        <div class="zone-text" style="left:8%;right:8%;top:5%;height:16%">Festive &amp; extra</div>
+        <div class="zone-draw" style="left:18%;right:18%;top:22%;bottom:6%">your big tree drawing</div>
+        <div class="zone-photo zone-round" style="left:30%;top:44%;width:13%;aspect-ratio:1"></div>
+        <div class="zone-photo zone-round" style="left:55%;top:52%;width:13%;aspect-ratio:1"></div>
+        <div class="zone-photo zone-round" style="left:38%;top:68%;width:13%;aspect-ratio:1"></div>
+      </div>
+      <h3>A. The poster</h3>
+      <p>One page. A big drawing with a handwritten headline, like your first two references. Small round photos hang as ornaments and grow when tapped.</p>
+      <p class="pair">Pairs with ink draws itself or untie the bow</p>
+    </div>
+
+    <div class="lay">
+      <div class="frame">
+        <div class="zone-photo" style="left:8%;top:8%;width:22%;height:20%;transform:rotate(-3deg)"></div>
+        <div class="zone-photo zone-round" style="left:66%;top:10%;width:22%;aspect-ratio:1"></div>
+        <div class="zone-photo" style="left:38%;top:5%;width:22%;height:16%;transform:rotate(2deg)"></div>
+        <div class="zone-draw" style="left:10%;right:10%;top:36%;bottom:5%">mantel, candles with bows, fire</div>
+        <div class="zone-draw" style="left:2%;bottom:5%;width:16%;height:30%;font-size:.85rem">cat</div>
+      </div>
+      <h3>B. The mantel wall</h3>
+      <p>A drawn room like the painted fireplace reference. Photos are framed pictures on the wall. Candles flicker, the fire moves, the cat sits in the corner.</p>
+      <p class="pair">Pairs with pick a stocking</p>
+    </div>
+
+    <div class="lay">
+      <div class="frame" style="display:grid;grid-template-columns:1fr 1fr">
+        <div class="zone-draw" style="left:5%;top:5%;width:42%;bottom:5%;border-color:var(--pine);color:var(--pine) !important">page 1 drawing, red + green only</div>
+        <div style="left:53%;top:5%;right:5%;height:48%;border:2px dashed var(--ink-soft);border-radius:4px">page 2 letter</div>
+        <div class="zone-photo" style="left:56%;top:58%;width:36%;height:34%;transform:rotate(3deg)"></div>
+      </div>
+      <h3>C. Two-color print, two pages</h3>
+      <p>Strict red and green ink like the vintage dog card. Page 1 is the drawing, swipe to page 2 for the letter and a photo. Cheapest to draw.</p>
+      <p class="pair">Pairs with untie the bow</p>
+    </div>
+
+    <div class="lay">
+      <div class="frame tall">
+        <div class="zone-draw" style="left:30%;top:3%;width:40%;height:14%;font-size:.9rem">star + cat</div>
+        <div class="zone-draw" style="left:18%;top:20%;width:64%;height:44%">tree grows as you scroll</div>
+        <div class="zone-photo" style="left:6%;top:30%;width:20%;height:14%;transform:rotate(-4deg)"></div>
+        <div class="zone-photo" style="right:6%;top:46%;width:20%;height:14%;transform:rotate(4deg)"></div>
+        <div style="left:12%;right:12%;top:70%;height:24%;border:2px dashed var(--ink-soft);border-radius:4px">letter at the bottom</div>
+      </div>
+      <h3>D. The scroll story</h3>
+      <p>A tall card you scroll through. The tree draws or grows as you go, photos drift in on the sides, and the cat waits at the top. Most "extra", most work.</p>
+      <p class="pair">Pairs with swat the ornament</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ================= INTERACTIONS ================= -->
+<section>
+  <h2>Interaction menu</h2>
+  <p class="sub">Small touches you can mix into any layout. The green ones already exist in the engine and are one line in card.json.</p>
+  <div class="menu">
+    <div class="item"><strong>Bows wiggle on hover <em class="tag have">have it</em></strong><span>hover: "wiggle" on any bow drawing</span></div>
+    <div class="item"><strong>Ornaments sway <em class="tag have">have it</em></strong><span>animate: "sway" swings from the top</span></div>
+    <div class="item"><strong>Things pop in one by one <em class="tag have">have it</em></strong><span>enter: "pop" with staggered delays</span></div>
+    <div class="item"><strong>Falling stars or snow <em class="tag have">have it</em></strong><span>snow effect with glyph "✦" in gold</span></div>
+    <div class="item"><strong>Sparkle trail <em class="tag have">have it</em></strong><span>sparkle-cursor effect in pink and gold</span></div>
+    <div class="item"><strong>Cat tail swishes <em class="tag have">have it</em></strong><span>draw the tail as its own piece, animate: "sway"</span></div>
+    <div class="item"><strong>Candles flicker <em class="tag small">small build</em></strong><span>new flicker loop for flame drawings</span></div>
+    <div class="item"><strong>Tap a photo to enlarge <em class="tag small">small build</em></strong><span>photo opens big with its caption, tap to close</span></div>
+    <div class="item"><strong>Photo flips to a note <em class="tag small">small build</em></strong><span>back of each polaroid has a handwritten line</span></div>
+    <div class="item"><strong>Line art draws on <em class="tag med">medium build</em></strong><span>any SVG drawing traces itself when the page shows</span></div>
+    <div class="item"><strong>Decorate the tree <em class="tag med">medium build</em></strong><span>viewers drag bows and ornaments onto your tree</span></div>
+    <div class="item"><strong>Tilt to sway <em class="tag med">medium build</em></strong><span>tilting the phone shifts the layers (iPhone asks permission)</span></div>
+  </div>
+</section>
+
+<!-- ================= DRAWING GUIDE ================= -->
+<section>
+  <h2>Drawing so it can move</h2>
+  <p class="sub">Whichever you pick, these rules keep your drawings easy to animate.</p>
+  <div class="guide">
+    <div>
+      <h3>Canvas and layers</h3>
+      <ol>
+        <li>Canvas 2160 × 2700 px (double the card frame, so it stays sharp).</li>
+        <li>Anything that moves gets its own layer. Bow loops, tails, the cat's tail, each ornament, each flame.</li>
+        <li>Draw a little past where pieces overlap, so no gap shows when something swings.</li>
+        <li>Keep the background (paper, wall, static tree) on one flat layer.</li>
+      </ol>
+    </div>
+    <div>
+      <h3>Exporting</h3>
+      <ol>
+        <li>Moving pieces as PNG with a transparent background.</li>
+        <li>For "ink draws itself", line art as SVG strokes. Procreate can't export SVG, so trace in Illustrator, Affinity, or Figma's pencil tool.</li>
+        <li>The background as one JPG.</li>
+        <li>Name files by what they are, like <code>bow-loop-left.png</code>.</li>
+      </ol>
+    </div>
+    <div class="note">Pick one opener and one layout and tell me. I'll build that opener and set up the 2026 card with placeholder slots sized for your drawings. Then you draw straight into those slots.</div>
+  </div>
+</section>
+
+<footer>Concept board for the 2026 holiday card. All drawings here are rough stand-ins.</footer>
+</div>
+
+<script>
+const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const t = (ms) => (reduce ? 10 : ms);
+
+function reset(ph) {
+  ph.className = ph.className.split(" ").filter((c) => !["played", "s1", "s2", "done", "lit"].includes(c)).join(" ");
+  ph.querySelectorAll(".picked, .on").forEach((n) => n.classList.remove("picked", "on"));
+  ph._busy = false;
+  const c = ph.querySelector(".count"); if (c) c.textContent = "0 of 4 opened";
+}
+
+const plays = {
+  async d1(ph) { ph.classList.add("played", "s1"); await wait(t(700)); ph.classList.add("s2"); await wait(t(1200)); ph.classList.add("done"); },
+  async d2(ph) { ph.classList.add("played"); },
+  async d4(ph) { ph.classList.add("played", "s1"); await wait(t(550)); ph.classList.add("s2"); await wait(t(900)); ph.classList.add("done"); },
+};
+
+for (const id of ["d1", "d2", "d4"]) {
+  const ph = document.getElementById(id);
+  const go = () => { if (ph._busy) return; ph._busy = true; plays[id](ph); };
+  ph.addEventListener("click", go);
+  ph.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } });
+}
+
+// stockings
+const d3 = document.getElementById("d3");
+d3.querySelectorAll(".stocking").forEach((s) => s.addEventListener("click", async () => {
+  if (d3._busy) return; d3._busy = true;
+  d3.classList.add("played"); s.classList.add("picked");
+  await wait(t(900)); d3.classList.add("done");
+}));
+
+// ornament gallery
+const d5 = document.getElementById("d5");
+d5.querySelectorAll(".ob").forEach((o) => o.addEventListener("click", async () => {
+  o.classList.add("on"); d5.classList.add("played");
+  const n = d5.querySelectorAll(".ob.on").length;
+  d5.querySelector(".count").textContent = n === 4 ? "all open, star's lit" : `${n} of 4 opened`;
+  if (n === 4) { await wait(t(300)); d5.classList.add("lit"); }
+}));
+
+document.querySelectorAll(".replay").forEach((b) => b.addEventListener("click", () => {
+  const ph = document.getElementById(b.dataset.for);
+  reset(ph);
+  if (plays[b.dataset.for]) { void ph.offsetWidth; requestAnimationFrame(() => { ph._busy = true; plays[b.dataset.for](ph); }); }
+}));
+</script>
+</body>
+</html>
