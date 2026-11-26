@@ -180,13 +180,13 @@
           "id": "tree-underlay",
           "type": "image",
           "src": "assets/art/tree-underlay.png",
-          "x": 87,
+          "x": 85,
           "y": 365,
-          "w": 905,
+          "w": 908,
           "h": 985,
           "enter": "wipe-up",
-          "duration": 1.8,
-          "delay": 0.15
+          "duration": 1.6,
+          "delay": 0.45
         },
         {
           "id": "cat-fill",
@@ -198,12 +198,12 @@
           "h": 689,
           "enter": "slide",
           "from": {
-            "x": 220,
-            "y": -320,
-            "rotate": 10
+            "x": 0,
+            "y": -22,
+            "rotate": 1.5
           },
-          "delay": 1.4,
-          "duration": 0.9
+          "delay": 0,
+          "duration": 0.8
         },
         {
           "id": "cat",
@@ -215,12 +215,12 @@
           "h": 691,
           "enter": "slide",
           "from": {
-            "x": 220,
-            "y": -320,
-            "rotate": 10
+            "x": 0,
+            "y": -22,
+            "rotate": 1.5
           },
-          "delay": 1.4,
-          "duration": 0.9
+          "delay": 0,
+          "duration": 0.8
         },
         {
           "id": "tree",
@@ -231,7 +231,8 @@
           "w": 911,
           "h": 978,
           "enter": "wipe-up",
-          "duration": 1.6
+          "duration": 1.6,
+          "delay": 0.35
         },
         {
           "id": "star",
@@ -247,7 +248,7 @@
             "y": -380,
             "rotate": -280
           },
-          "delay": 2.1,
+          "delay": 1.7,
           "duration": 1.1,
           "animate": "twinkle",
           "speed": 3.2,
@@ -262,7 +263,7 @@
           "w": 806,
           "h": 968,
           "enter": "sparkle",
-          "delay": 2.8,
+          "delay": 2.3,
           "animate": "shimmer"
         },
         {
@@ -282,7 +283,7 @@
             "font": "'Schoolbell', cursive",
             "size": 70,
             "color": "#4c4243",
-            "delay": 3.4,
+            "delay": 2.9,
             "write": 2.0,
             "seed": 11,
             "position": "below",
