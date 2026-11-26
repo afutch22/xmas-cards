@@ -1,224 +1,226 @@
 {
   "year": "2026",
-  "engine": "1.1.0",
+  "engine": "1.2.0",
   "meta": {
-    "title": "Happy Holidays",
-    "description": "A little card for you. Tap to open.",
+    "title": "Happy HOWLdays",
+    "description": "A little card for you. Tap the bow.",
     "image": null,
     "url": null
   },
   "theme": {
-    "page": "radial-gradient(ellipse at top, #2a5a40, #10281b)",
+    "page": "radial-gradient(ellipse at 50% 30%, #5a4d4e, #2b2324 75%)",
     "fontLinks": [
-      "https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Lobster&display=swap"
+      "https://fonts.googleapis.com/css2?family=Great+Vibes&family=Schoolbell&family=Caveat:wght@500;700&display=swap"
     ],
     "stylesheets": [
       "style.css"
     ],
     "fonts": {
-      "display": "'Lobster', Georgia, serif",
+      "display": "'Great Vibes', cursive",
       "hand": "'Caveat', 'Bradley Hand', cursive",
+      "scrawl": "'Schoolbell', cursive",
       "body": "Georgia, serif"
     },
     "vars": {
-      "xc-tape": "rgba(255, 170, 190, 0.8)"
+      "xc-v-paper": "#f3dcd6",
+      "xc-v-ink": "#4c4243",
+      "xc-v-accent": "#b54544"
     }
   },
   "opener": {
-    "type": "envelope",
+    "type": "gatefold",
     "options": {
-      "color": "#b8282f",
-      "sealColor": "#d9b44a",
-      "seal": "♥",
-      "to": "To: you",
-      "stamp": "★",
-      "stampColor": "#2f6b45",
-      "hint": "tap to open"
+      "doorColor": "#b54544",
+      "patternColor": "#93302f",
+      "insideColor": "#f0d6cf",
+      "ribbonColor": "#eacbc3",
+      "inkColor": "#4c4243",
+      "left": [
+        0,
+        1
+      ],
+      "right": [
+        2,
+        3
+      ],
+      "hint": "tap the bow"
     }
   },
   "effects": [
     {
       "type": "snow",
       "options": {
-        "count": 90
+        "count": 45,
+        "color": "#f3dcd6",
+        "size": 2.4,
+        "speed": 0.7
       }
     },
     {
-      "type": "twinkle-lights"
-    },
-    {
-      "type": "sparkle-cursor"
+      "type": "sparkle-cursor",
+      "options": {
+        "glyphs": [
+          "✦",
+          "✧",
+          "+"
+        ],
+        "colors": [
+          "#e8c54b",
+          "#eacbc3",
+          "#b54544"
+        ]
+      }
     }
   ],
   "music": null,
+  "gallery": [
+    {
+      "src": "assets/photo-1.svg",
+      "caption": "caption here",
+      "alt": ""
+    },
+    {
+      "src": "assets/photo-2.svg",
+      "caption": "caption here",
+      "alt": ""
+    },
+    {
+      "src": "assets/photo-3.svg",
+      "caption": "caption here",
+      "alt": ""
+    },
+    {
+      "src": "assets/photo-4.svg",
+      "caption": "caption here",
+      "alt": ""
+    }
+  ],
+  "note": {
+    "label": "a note for you",
+    "text": "Dear you,\n\nThis is where your note goes. A few lines about the year, something funny about the cat, something sweet.\n\nWishing you a cozy season and a very happy new year.",
+    "signature": "love, Anni",
+    "delay": 8
+  },
   "stage": {
     "width": 1080,
     "height": 1350,
-    "radius": 16,
-    "background": "#fbf4e6"
+    "radius": 10,
+    "background": "#eacbc3"
   },
   "pages": [
     {
-      "name": "front",
-      "background": "radial-gradient(circle, #ead7b3 0.3cqw, transparent 0.35cqw) 0 0 / 5cqw 5cqw, #fbf4e6",
+      "name": "card",
       "layers": [
         {
-          "id": "headline",
-          "type": "text",
-          "text": "Happy Holidays",
-          "x": 60,
-          "y": 100,
-          "w": 960,
-          "size": 120,
-          "font": "display",
-          "color": "#b8282f",
-          "align": "center",
-          "shadow": true,
-          "enter": "drop"
-        },
-        {
-          "id": "subhead",
-          "type": "text",
-          "text": "from all of us",
-          "x": 240,
-          "y": 260,
-          "w": 600,
-          "size": 72,
-          "font": "hand",
-          "color": "#2f6b45",
-          "align": "center",
-          "enter": "fade",
-          "delay": 0.4
-        },
-        {
-          "id": "photo-1",
+          "id": "tree-underlay",
           "type": "image",
-          "src": "assets/photo-1.svg",
-          "x": 100,
-          "y": 400,
-          "w": 420,
-          "h": 500,
-          "rotate": -6,
-          "frame": "polaroid",
-          "caption": "caption here",
-          "enter": "pop",
-          "delay": 0.5,
-          "hover": "lift"
+          "src": "assets/art/tree-underlay.png",
+          "x": 87,
+          "y": 365,
+          "w": 905,
+          "h": 983,
+          "enter": "wipe-up",
+          "duration": 1.8,
+          "delay": 0.15
         },
         {
-          "id": "photo-2",
+          "id": "cat-fill",
           "type": "image",
-          "src": "assets/photo-2.svg",
-          "x": 560,
-          "y": 370,
-          "w": 420,
-          "h": 500,
-          "rotate": 5,
-          "frame": "polaroid",
-          "caption": "and here",
-          "enter": "pop",
-          "delay": 0.7,
-          "hover": "lift"
+          "src": "assets/art/cat-fill.png",
+          "x": 177,
+          "y": 27,
+          "w": 577,
+          "h": 689,
+          "enter": "slide",
+          "from": {
+            "x": 220,
+            "y": -320,
+            "rotate": 10
+          },
+          "delay": 1.4,
+          "duration": 0.9
         },
         {
-          "id": "photo-3",
+          "id": "cat",
           "type": "image",
-          "src": "assets/photo-3.svg",
-          "x": 330,
-          "y": 900,
-          "w": 440,
-          "h": 330,
-          "rotate": -2,
-          "frame": "tape",
-          "enter": "pop",
-          "delay": 0.9,
-          "hover": "lift"
+          "src": "assets/art/cat.png",
+          "x": 176,
+          "y": 26,
+          "w": 593,
+          "h": 691,
+          "enter": "slide",
+          "from": {
+            "x": 220,
+            "y": -320,
+            "rotate": 10
+          },
+          "delay": 1.4,
+          "duration": 0.9
         },
         {
           "id": "tree",
           "type": "image",
-          "src": "assets/tree.svg",
-          "x": 50,
-          "y": 1010,
-          "w": 230,
-          "h": 270,
-          "frame": "sticker",
-          "animate": "bob",
-          "enter": "rise",
-          "delay": 1.1
+          "src": "assets/art/tree.png",
+          "x": 76,
+          "y": 372,
+          "w": 911,
+          "h": 978,
+          "enter": "wipe-up",
+          "duration": 1.6
         },
         {
           "id": "star",
           "type": "image",
-          "src": "assets/star.svg",
-          "x": 850,
-          "y": 1030,
-          "w": 170,
-          "h": 170,
-          "frame": "sticker",
+          "src": "assets/art/star.png",
+          "x": 120,
+          "y": 693,
+          "w": 136,
+          "h": 126,
+          "enter": "tumble",
+          "from": {
+            "x": 300,
+            "y": -380,
+            "rotate": -280
+          },
+          "delay": 2.1,
+          "duration": 1.1,
           "animate": "twinkle",
-          "enter": "spin",
-          "delay": 1.2
-        },
-        {
-          "id": "ornament",
-          "type": "image",
-          "src": "assets/ornament.svg",
-          "x": 905,
-          "y": 230,
-          "w": 120,
-          "h": 144,
-          "frame": "contain",
-          "animate": "sway",
-          "enter": "drop",
-          "delay": 0.3
-        }
-      ]
-    },
-    {
-      "name": "inside",
-      "background": "repeating-linear-gradient(#fffaf0 0 6.2cqw, #eadfca 6.2cqw 6.3cqw)",
-      "layers": [
-        {
-          "id": "letter",
-          "type": "text",
-          "text": "Dear friends,\n\nThis is where the note goes. A few lines about the year, something funny, something sweet.\n\nWishing you a cozy season and a very happy new year.",
-          "x": 110,
-          "y": 120,
-          "w": 860,
-          "size": 58,
-          "font": "hand",
-          "color": "#3a2a1a",
-          "lineHeight": 1.15,
-          "enter": "fade"
-        },
-        {
-          "id": "signoff",
-          "type": "text",
-          "text": "with love,\nus",
-          "x": 560,
-          "y": 1000,
-          "w": 420,
-          "size": 80,
-          "font": "hand",
-          "weight": 700,
-          "color": "#b8282f",
-          "align": "right",
-          "enter": "rise",
-          "delay": 0.4
-        },
-        {
-          "id": "photo-round",
-          "type": "image",
-          "src": "assets/photo-2.svg",
-          "x": 110,
-          "y": 960,
-          "w": 280,
-          "h": 280,
-          "frame": "round",
-          "enter": "pop",
-          "delay": 0.6,
+          "speed": 3.2,
           "hover": "wiggle"
+        },
+        {
+          "id": "sparkles",
+          "type": "image",
+          "src": "assets/art/sparkles.png",
+          "x": 119,
+          "y": 360,
+          "w": 806,
+          "h": 968,
+          "enter": "sparkle",
+          "delay": 2.8,
+          "animate": "shimmer"
+        },
+        {
+          "id": "headline",
+          "type": "text",
+          "text": "Happy\nHolidays!",
+          "x": 54,
+          "y": 30,
+          "w": 560,
+          "size": 96,
+          "font": "display",
+          "color": "#b54544",
+          "lineHeight": 1.42,
+          "correct": {
+            "strike": "Hol",
+            "replace": "HOWL",
+            "font": "'Schoolbell', cursive",
+            "size": 70,
+            "color": "#4c4243",
+            "delay": 3.4,
+            "write": 2.0,
+            "seed": 11
+          }
         }
       ]
     }

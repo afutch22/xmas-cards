@@ -1,24 +1,7 @@
-/* This year's own styles. Loaded after the engine, so anything here wins.
-   Delete what you don't use. Every class the engine draws is listed below.
+/* 2026 overrides. Loaded after the engine, so anything here wins. */
 
-   CARD
-   .xc-card            the whole card (container for cqw units)
-   .xc-stage           card surface (radius, shadow)
-   .xc-page            one page            .xc-page.is-active  the visible one
-   .xc-layer           a placed layer      [data-id="photo-1"] target one by id
-   .xc-caption         polaroid caption text
+/* the cat and star images are cropped from full-canvas Procreate layers, so keep them crisp */
+.xc-image img { image-rendering: auto; }
 
-   NAV + UI
-   .xc-nav  .xc-nav-btn  .xc-dots  .xc-dot  .xc-dot.is-active
-   .xc-music  .xc-music.is-playing
-
-   ENVELOPE OPENER
-   .xc-env-scene  .xc-env  .xc-env-back  .xc-env-paper  .xc-env-front
-   .xc-env-flap .out  .xc-env-flap .in  .xc-env-seal  .xc-env-stamp  .xc-env-to  .xc-env-hint
-
-   FLIP OPENER
-   .xc-flip-scene  .xc-flip  .xc-flip-cover  .xc-flip .front  .xc-flip .back  .xc-flip-hint
-
-   EFFECTS
-   .xc-fx-snow  .xc-lights  .xc-lights .bulb  .xc-sparkle
-*/
+/* nothing to page through, so hide the empty nav space */
+.xc-nav { display: none; }

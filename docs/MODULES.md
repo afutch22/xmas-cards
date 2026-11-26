@@ -63,6 +63,10 @@ export default function confetti({ options, reducedMotion }) {
 
 Use the `xc-fx` class for full-screen layers (fixed, not clickable). z-index guide: 0 behind the card, 3 above the background but below the opener, 30 above everything.
 
+## Layer add-ons
+
+File `engine/layers/<name>.js`, loaded by the engine when a layer asks for it (today `correct` loads `correction.js`). It receives the layer's elements, the layer config and the card, and should wait for `card.revealed` before animating.
+
 ## Frames, entrances, loops, hovers
 
 These are CSS classes in `engine/engine.css`. A layer with `"frame": "x"` gets class `xc-frame-x`, `"enter": "x"` gets `xc-enter-x`, `"animate": "x"` gets `xc-anim-x`, `"hover": "x"` gets `xc-hover-x`. To add one, add the CSS rule. Then list it in `CARD-SCHEMA.md`.

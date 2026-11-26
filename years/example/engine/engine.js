@@ -5,7 +5,7 @@
 
 import { el, loadStylesheet } from "./util.js";
 
-export const ENGINE_VERSION = "1.1.0";
+export const ENGINE_VERSION = "1.2.0";
 
 const params = new URLSearchParams(location.search);
 const IS_EDIT = params.has("edit");
@@ -30,6 +30,17 @@ export async function boot({ root = "#card-root", config = "card.json" } = {}) {
 
   const ctx = { root: rootEl, card, config: cfg, reducedMotion: REDUCED_MOTION, editing: IS_EDIT };
   ctx.effects = await startEffects(ctx);
+  // photo viewer + note (only loads when the card has a gallery or note)
+  let viewer = null;
+  ctx.openGallery = async (i = 0) => {
+    if (!viewer) viewer = (await import("./viewer.js")).default(ctx);
+    viewer.open(i);
+  };
+  card.el.addEventListener("xc:zoom", (e) => ctx.openGallery(e.detail));
+  if (cfg.note) card.revealed.then(async () => {
+    if (!viewer) viewer = (await import("./viewer.js")).default(ctx);
+    viewer.showNoteTag();
+  });
   const music = cfg.music?.src ? addMusic(cfg.music) : null;
 
   if (IS_EDIT) {
@@ -82,6 +93,7 @@ function buildCard(cfg) {
   if (stageCfg.shadow === false) stage.classList.add("no-shadow");
   cardEl.append(stage);
 
+  const cardApi = {}; // filled in at the end; modules get it early
   const pages = [];
   const layers = [];
   const pageCfgs = cfg.pages?.length ? cfg.pages : [{ layers: [] }];
@@ -124,6 +136,13 @@ function buildCard(cfg) {
     if (l.enter) {
       enter.classList.add(`xc-enter-${l.enter}`);
       enter.style.animationDelay = `${l.delay || 0}s`;
+      if (l.duration) enter.style.animationDuration = `${l.duration}s`;
+      if (l.from) {
+        // where a "slide" or "tumble" entrance starts, in design px relative to its final spot
+        enter.style.setProperty("--fx", cq(l.from.x || 0));
+        enter.style.setProperty("--fy", cq(l.from.y || 0));
+        enter.style.setProperty("--fr", `${l.from.rotate || 0}deg`);
+      }
     }
     if (l.hover) enter.classList.add(`xc-hover-${l.hover}`);
 
@@ -159,6 +178,15 @@ function buildCard(cfg) {
     if (l.style) Object.assign(inner.style, l.style); // escape hatch: camelCase CSS
 
     let content = inner;
+    if (l.correct) {
+      // scratch-out-and-rewrite effect, lives in its own module
+      import("./layers/correction.js").then((m) => m.default({ outer, inner, layer: l, card: cardApi, cq }));
+    }
+    if (l.zoom != null) {
+      outer.classList.add("xc-zoomable");
+      outer.addEventListener("click", () => cardEl.dispatchEvent(new CustomEvent("xc:zoom", { detail: l.zoom })));
+    }
+
     if (l.href) {
       content = el("a", "xc-link", { href: l.href, target: "_blank", rel: "noopener" });
       content.append(inner);
@@ -217,7 +245,9 @@ function buildCard(cfg) {
   }
   show(0);
 
-  return {
+  let markRevealed;
+  const revealed = new Promise((r) => (markRevealed = r));
+  Object.assign(cardApi, {
     el: cardEl,
     stage,
     pages,
@@ -226,11 +256,14 @@ function buildCard(cfg) {
     height: H,
     show,
     place,
-    open: () => cardEl.classList.add("is-open"),
-    get current() {
-      return current;
+    revealed, // resolves when the card is first revealed (opener done)
+    open: () => {
+      cardEl.classList.add("is-open", "is-revealed");
+      markRevealed();
     },
-  };
+  });
+  Object.defineProperty(cardApi, "current", { get: () => current });
+  return cardApi;
 }
 
 /* ---------- effects ---------- */

@@ -56,6 +56,8 @@ To use a font file instead of Google Fonts, put it in `assets/`, add a small CSS
 
 **flip** options `image`, `title`, `color`, `textColor`, `inside`, `hint`.
 
+**gatefold** options `doorColor`, `doorPattern`, `patternColor`, `insideColor`, `ribbonColor`, `inkColor`, `bowImage`, `left`, `right` (gallery indexes shown inside each door), `photosDelay`, `hint`, `hintColor`. The doors stay open as side panels.
+
 **none** shows the card immediately.
 
 ## effects
@@ -75,6 +77,15 @@ A list. Each item is a name or `{ "type": name, "options": {...} }`.
 ```
 
 Browsers only allow sound after a tap, so it starts when the card opens. Use `null` for no music. Use music you have the rights to share.
+
+## gallery and note
+
+```json
+"gallery": [ { "src": "assets/photo.jpg", "caption": "first snow", "alt": "the yard covered in snow" } ],
+"note": { "label": "a note for you", "text": "Dear you,\n\n...", "signature": "love, Anni", "delay": 8 }
+```
+
+Photos open full size in a viewer you can swipe through. The note is the last item, and its tag appears `delay` seconds after the card opens. Any layer with `"zoom": <index>` opens the viewer at that photo.
 
 ## stage
 
@@ -111,9 +122,12 @@ Layers stack in list order (later is on top) unless you set `z`.
 | `w`, `h` | 420, 500 | Leave `h` out on text to size automatically |
 | `rotate` | -6 | Degrees, clockwise |
 | `z` | 10 | Stacking order |
-| `enter` | `"pop"` | Entrance each time the page shows. `pop`, `drop`, `fade`, `rise`, `spin` |
+| `enter` | `"pop"` | Entrance once the card opens. `pop`, `drop`, `fade`, `rise`, `spin`, `slide`, `tumble`, `sparkle`, `wipe-up`, `wipe-down`, `wipe-right` |
+| `from` | `{ "x": 220, "y": -320, "rotate": 10 }` | Where `slide` and `tumble` start, in design px from the final spot |
+| `duration` | 1.6 | Entrance length in seconds |
 | `delay` | 0.4 | Seconds before the entrance starts. Stagger these. |
-| `animate` | `"float"` | Looping motion. `float`, `sway`, `bob`, `twinkle`, `spin`, `pulse`, `jiggle` |
+| `animate` | `"float"` | Looping motion. `float`, `sway`, `bob`, `twinkle`, `spin`, `pulse`, `jiggle`, `shimmer` |
+| `zoom` | 0 | Tap opens the photo viewer at this gallery index |
 | `speed` | 3 | Seconds per loop |
 | `hover` | `"lift"` | On mouse hover. `lift`, `grow`, `wiggle` |
 | `href` | `"https://..."` | Makes the layer a link |
@@ -140,6 +154,16 @@ Layers stack in list order (later is on top) unless you set `z`.
 | `color`, `align`, `weight`, `lineHeight` | As in CSS |
 | `letterSpacing` | In em, e.g. `0.05` |
 | `shadow` | `true` or a CSS text-shadow |
+
+### text with a correction
+
+Add `correct` to a text layer to write it in, scratch out part of it, and scrawl a replacement above.
+
+```json
+"correct": { "strike": "Hol", "replace": "HOWL", "font": "'Schoolbell', cursive", "size": 70, "color": "#4c4243", "delay": 3.4, "write": 2.0, "seed": 11 }
+```
+
+Change `seed` for a different scratch.
 
 ### box
 
