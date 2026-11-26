@@ -1,12 +1,18 @@
 // Little hand-drawn trinkets (SVG) for decorating around photos.
 // Each one is drawn with a doubled, slightly offset ink line so it reads as sketched.
 // doodle(kind, colors) returns an SVG string. Kinds:
-//   bow, ornament, yarn, paw, candycane, holly, mouse, fish, heart, tape
-// colors: { ink, red, deep, gold, pink, paper }
+//   bow, ornament, gift, bell, candycane, holly, sprig, heart, yarn, paw, mouse, fish, tape
+// colors: { ink, red, deep, gold, pink, paper, inkOnly }
+// inkOnly: a color; draws every doodle as plain line work in that one ink (matches a line drawing)
 
 const DEF = { ink: "#4c4243", red: "#b54544", deep: "#93302f", gold: "#e8c54b", pink: "#eacbc3", paper: "#fffaf6" };
 
+let INK_ONLY = null; // when set, every doodle is drawn as plain line work in this color
 const sketch = (d, c, w = 2.2, fill = "none") =>
+  INK_ONLY
+    ? `<path d="${d}" fill="none" stroke="${INK_ONLY}" stroke-width="${Math.min(w, 3.2) * 0.85}" stroke-linecap="round" stroke-linejoin="round"/>` +
+      `<path d="${d}" fill="none" stroke="${INK_ONLY}" stroke-width="${Math.min(w, 3.2) * 0.45}" stroke-linecap="round" opacity=".6" transform="translate(1.4 .9) rotate(1.2 50 50)"/>`
+    :
   `<path d="${d}" fill="${fill}" stroke="none"/>` +
   `<path d="${d}" fill="none" stroke="${c}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>` +
   `<path d="${d}" fill="none" stroke="${c}" stroke-width="${w * 0.55}" stroke-linecap="round" stroke-linejoin="round" opacity=".55" transform="translate(1.1 .7) rotate(.8 50 50)"/>`;
@@ -81,6 +87,27 @@ const SHAPES = {
       sketch("M40 18 C46 26 46 34 40 42 M54 16 C60 26 60 34 54 44", k.ink, 1.4) +
       `<circle cx="26" cy="27" r="2.8" fill="${k.ink}"/>`,
   }),
+  gift: (k) => ({
+    box: "0 0 90 90",
+    body:
+      sketch("M10 36 H80 V84 H10Z", k.ink, 2.2, k.red) +
+      sketch("M6 26 H84 V38 H6Z", k.ink, 2.2, k.red) +
+      sketch("M45 26 V84", k.gold, 5) +
+      sketch("M45 26 C36 10 18 10 22 20 C26 28 40 26 45 26 C50 26 64 28 68 20 C72 10 54 10 45 26Z", k.ink, 2, k.gold),
+  }),
+  bell: (k) => ({
+    box: "0 0 80 90",
+    body:
+      sketch("M40 8 C58 8 64 24 64 42 C64 56 70 64 76 70 H4 C10 64 16 56 16 42 C16 24 22 8 40 8Z", k.ink, 2.2, k.gold) +
+      sketch("M40 70 m-7 0 a7 7 0 1 0 14 0", k.ink, 2, k.ink) +
+      sketch("M30 4 C34 0 46 0 50 4", k.red, 3),
+  }),
+  sprig: (k) => ({
+    box: "0 0 90 90",
+    body:
+      sketch("M14 80 C30 60 50 40 78 12", k.ink, 1.8) +
+      sketch("M24 66 l-12 -6 M24 66 l4 -14 M34 54 l-13 -5 M34 54 l3 -14 M45 42 l-12 -5 M45 42 l3 -13 M56 31 l-11 -4 M56 31 l3 -12 M66 21 l-9 -4 M66 21 l2 -10 M24 66 l12 6 M34 54 l12 5 M45 42 l12 4 M56 31 l11 3", "#5f7a45", 1.8),
+  }),
   heart: (k) => ({
     box: "0 0 80 72",
     body: sketch("M40 68 C18 52 4 40 6 22 C8 6 30 2 40 20 C50 2 72 6 74 22 C76 40 62 52 40 68Z", k.ink, 2.2, k.red),
@@ -88,15 +115,16 @@ const SHAPES = {
   tape: (k) => ({
     box: "0 0 120 34",
     body:
-      `<path d="M4 6 L10 2 L16 6 L110 3 L116 8 L112 14 L117 20 L113 27 L116 32 L10 31 L4 26 L8 18 L3 12Z" fill="${k.pink}" opacity=".85"/>` +
-      `<path d="M20 4 L14 31 M38 4 L32 31 M56 4 L50 31 M74 3 L68 31 M92 3 L86 31" stroke="${k.red}" stroke-width="5" opacity=".35"/>` +
-      sketch("M4 6 L10 2 L16 6 L110 3 L116 8 L112 14 L117 20 L113 27 L116 32 L10 31 L4 26 L8 18 L3 12Z", k.ink, 1.1),
+      `<path d="M4 6 L10 2 L16 6 L110 3 L116 8 L112 14 L117 20 L113 27 L116 32 L10 31 L4 26 L8 18 L3 12Z" fill="${k.tape || k.pink}" opacity=".8"/>` +
+      `<path d="M20 4 L14 31 M38 4 L32 31 M56 4 L50 31 M74 3 L68 31 M92 3 L86 31" stroke="${k.tapeStripe || k.red}" stroke-width="5" opacity=".3"/>`,
   }),
 };
 
 export function doodle(kind, colors = {}) {
   const k = { ...DEF, ...colors };
+  INK_ONLY = colors.inkOnly || null;
   const s = (SHAPES[kind] || SHAPES.heart)(k);
+  INK_ONLY = null;
   return `<svg viewBox="${s.box}" aria-hidden="true" style="overflow:visible;display:block;width:100%">${s.body}</svg>`;
 }
 

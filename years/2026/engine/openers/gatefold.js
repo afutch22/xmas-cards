@@ -15,9 +15,9 @@
 //   photosDelay   seconds after opening before photos pop in   1.4
 //   tape          washi tape on each photo                     true
 //   trinkets      doodles around the photos, each one:
-//                 { "side": "l"|"r", "kind": "bow"|"ornament"|"yarn"|"paw"|"candycane"|"holly"|"mouse"|"fish"|"heart",
+//                 { "side": "l"|"r", "kind": "bow"|"ornament"|"gift"|"bell"|"candycane"|"holly"|"sprig"|"heart"|...,
 //                   or "src": "assets/your.png", "x": %, "y": %, "w": % of door width, "rotate": deg, "animate": "sway"|"twinkle"|... }
-//   doodleColors  { ink, red, deep, gold, pink, paper } for the doodles
+//   doodleColors  { ink, red, deep, gold, pink, paper, tape, tapeStripe, inkOnly } for the doodles
 //   closeLabel    text on the button that closes the card       "close the card"
 // After opening, a button closes the doors again. Tap the bow to reopen; everything replays.
 //   hint          text under the closed card                   "tap the bow"
@@ -63,7 +63,7 @@ export default async function gatefold({ root, card, config, options: o, reduced
       snap.innerHTML = `<img src="${esc(g.src)}" alt="${esc(g.alt || "")}" draggable="false">${g.caption ? `<span>${esc(g.caption)}</span>` : ""}`;
       if (o.tape !== false) {
         const tape = el("i", "xc-gf-tape");
-        tape.innerHTML = doodle("tape", colors);
+        tape.innerHTML = doodle("tape", { ...colors, inkOnly: null });
         tape.style.setProperty("--tr", `${(k % 2 ? 6 : -7) - tilt}deg`);
         snap.append(tape);
       }

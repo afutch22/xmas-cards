@@ -8,7 +8,7 @@
     "url": null
   },
   "theme": {
-    "page": "#d9aaa1",
+    "page": "#aab49b",
     "fontLinks": [
       "https://fonts.googleapis.com/css2?family=Great+Vibes&family=Schoolbell&family=Nanum+Pen+Script&display=swap"
     ],
@@ -49,124 +49,77 @@
         {
           "side": "l",
           "kind": "bow",
-          "x": 60,
-          "y": 1,
-          "w": 30,
+          "x": 62,
+          "y": 2,
+          "w": 26,
           "rotate": 14,
           "animate": "sway"
         },
         {
           "side": "l",
-          "kind": "yarn",
-          "x": 6,
-          "y": 39,
-          "w": 36,
-          "rotate": -8
-        },
-        {
-          "side": "l",
-          "kind": "paw",
-          "x": 50,
-          "y": 44,
-          "w": 13,
-          "rotate": 20
-        },
-        {
-          "side": "l",
-          "kind": "paw",
-          "x": 68,
+          "kind": "sprig",
+          "x": 8,
           "y": 40,
-          "w": 11,
-          "rotate": 34
-        },
-        {
-          "side": "l",
-          "src": "assets/art/bits/sparkle-25.png",
-          "x": 82,
-          "y": 31,
-          "w": 9,
-          "rotate": 10,
-          "animate": "twinkle"
+          "w": 30,
+          "rotate": -10
         },
         {
           "side": "l",
           "src": "assets/art/star.png",
-          "x": 6,
+          "x": 8,
           "y": 88,
-          "w": 22,
+          "w": 20,
           "rotate": -16,
           "animate": "twinkle"
         },
         {
           "side": "l",
-          "kind": "fish",
-          "x": 48,
-          "y": 89,
-          "w": 34,
-          "rotate": 8
+          "src": "assets/art/bits/sparkle-25.png",
+          "x": 82,
+          "y": 44,
+          "w": 9,
+          "animate": "twinkle"
         },
         {
           "side": "r",
           "kind": "ornament",
-          "x": 4,
+          "x": 5,
           "y": 0,
-          "w": 18,
+          "w": 16,
           "rotate": -6,
           "animate": "sway"
         },
         {
           "side": "r",
-          "kind": "holly",
-          "x": 10,
-          "y": 41,
-          "w": 38,
-          "rotate": -6
-        },
-        {
-          "side": "r",
           "kind": "candycane",
-          "x": 64,
-          "y": 37,
-          "w": 14,
-          "rotate": 24
+          "x": 68,
+          "y": 38,
+          "w": 12,
+          "rotate": 22
         },
         {
           "side": "r",
-          "kind": "heart",
-          "x": 84,
-          "y": 55,
-          "w": 11,
-          "rotate": 12,
-          "animate": "pulse"
+          "kind": "bell",
+          "x": 60,
+          "y": 89,
+          "w": 18,
+          "rotate": 10
         },
         {
           "side": "r",
           "src": "assets/art/bits/sparkle-22.png",
-          "x": 80,
-          "y": 2,
+          "x": 12,
+          "y": 44,
           "w": 10,
-          "rotate": 0,
-          "animate": "twinkle"
-        },
-        {
-          "side": "r",
-          "kind": "mouse",
-          "x": 42,
-          "y": 89,
-          "w": 38,
-          "rotate": -4
-        },
-        {
-          "side": "r",
-          "src": "assets/art/bits/sparkle-18.png",
-          "x": 8,
-          "y": 90,
-          "w": 9,
-          "rotate": 0,
           "animate": "twinkle"
         }
       ],
-      "hintColor": "#4c4243"
+      "hintColor": "#4c4243",
+      "doodleColors": {
+        "inkOnly": "#b54544",
+        "tape": "#9fae8c",
+        "tapeStripe": "#6f7f5c"
+      }
     }
   },
   "effects": [
