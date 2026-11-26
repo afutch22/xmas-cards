@@ -10,7 +10,10 @@
 //   insideColor   inside of the doors                          "#f0d6cf"
 //   ribbonColor   ribbon and bow fill                          "#eacbc3"
 //   inkColor      outline color for the drawn bow and ribbon   "#4c4243"
-//   bowImage      your own bow drawing (PNG) instead of the drawn one
+//   bowImage      your own bow drawing (transparent PNG) instead of the drawn one
+//   bow, ribbon   false to hide the drawn bow / ribbon (e.g. if your frontImage has its own)
+//   frontImage    your drawing for the closed card, 1080 x 1350, split down the middle onto the two doors
+//   insideLeftImage, insideRightImage   backgrounds for the door insides, 540 x 1350 each
 //   left, right   gallery indexes shown inside each door       [0, 1] and [2, 3]
 //   photosDelay   seconds after opening before photos pop in   1.4
 //   tape          washi tape on each photo                     true
@@ -73,8 +76,20 @@ export default async function gatefold({ root, card, config, options: o, reduced
       });
       inside.append(snap);
     });
-    door.append(el("div", "xc-gf-face out"), inside);
-    door.querySelector(".out").append(el("div", "xc-gf-band"));
+    const out = el("div", "xc-gf-face out");
+    // your own drawing for the closed front: one picture split across both doors
+    if (o.frontImage) {
+      out.style.backgroundImage = `url("${o.frontImage}")`;
+      out.style.backgroundSize = "200% 100%";
+      out.style.backgroundPosition = side === "l" ? "left top" : "right top";
+    }
+    const insideImg = side === "l" ? o.insideLeftImage : o.insideRightImage;
+    if (insideImg) {
+      inside.style.backgroundImage = `url("${insideImg}")`;
+      inside.style.backgroundSize = "100% 100%";
+    }
+    door.append(out, inside);
+    if (o.ribbon !== false) out.append(el("div", "xc-gf-band"));
     wrap.append(door);
   }
 
@@ -89,7 +104,7 @@ export default async function gatefold({ root, card, config, options: o, reduced
 
   const bow = o.bowImage ? el("img", "xc-gf-bow", { src: o.bowImage, alt: "" }) : el("div", "xc-gf-bow");
   if (!o.bowImage) bow.innerHTML = bowSVG(ink);
-  wrap.append(bow);
+  if (o.bow !== false) wrap.append(bow);
 
   const hint = el("p", "xc-gf-hint");
   hint.textContent = o.hint ?? "tap the bow";

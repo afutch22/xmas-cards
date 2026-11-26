@@ -9,6 +9,7 @@ Run from anywhere:
   python3 tools/cards.py stamp 2026               write link-preview tags from card.json
   python3 tools/cards.py publish 2026             mark as published in the archive
   python3 tools/cards.py list                     show every card and its status
+  python3 tools/cards.py crop-layers 2026         crop full-canvas layer PNGs and update card.json
 """
 
 import argparse
@@ -205,6 +206,48 @@ def cmd_list(args):
         print(f"{d.name:<12} {status:<10} engine {cfg.get('engine', '?'):<8} {cfg.get('opener', {}).get('type', 'none')}")
 
 
+def cmd_crop_layers(args):
+    """Crop full-canvas PNGs in assets/layers/ to their drawn area, save to assets/art/,
+    and update x, y, w, h for layers in card.json that use assets/art/<name>.png."""
+    try:
+        from PIL import Image
+    except ImportError:
+        sys.exit("This needs Pillow (free). Install it once with:\n  python3 -m pip install --user pillow")
+    d = card_dir(args.name)
+    src_dir, out_dir = d / "assets" / "layers", d / "assets" / "art"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    cfg = read_json(d / "card.json")
+    W = (cfg.get("stage") or {}).get("width", 1080)
+    H = (cfg.get("stage") or {}).get("height", 1350)
+    boxes = {}
+    for png in sorted(src_dir.glob("*.png")):
+        if png.stem.startswith("background"):
+            continue
+        im = Image.open(png).convert("RGBA")
+        if im.size != (W, H):
+            print(f"  {png.name}: canvas is {im.size[0]} x {im.size[1]}, expected {W} x {H}. Scaling to match.")
+            im = im.resize((W, H), Image.LANCZOS)
+        bb = im.getchannel("A").point(lambda v: 255 if v > 8 else 0).getbbox()
+        if not bb:
+            print(f"  {png.name}: empty, skipped")
+            continue
+        pad = 4
+        bb = (max(0, bb[0] - pad), max(0, bb[1] - pad), min(W, bb[2] + pad), min(H, bb[3] + pad))
+        im.crop(bb).save(out_dir / png.name, optimize=True)
+        boxes[f"assets/art/{png.name}"] = {"x": bb[0], "y": bb[1], "w": bb[2] - bb[0], "h": bb[3] - bb[1]}
+        print(f"  {png.name}: x {bb[0]}, y {bb[1]}, w {bb[2] - bb[0]}, h {bb[3] - bb[1]}")
+    updated = 0
+    for page in cfg.get("pages", []):
+        for layer in page.get("layers", []):
+            if layer.get("src") in boxes:
+                layer.update(boxes[layer["src"]])
+                updated += 1
+    write_json(d / "card.json", cfg)
+    print(f"Cropped {len(boxes)} layers, updated {updated} positions in card.json.")
+    if any(k.endswith(("tree.png", "cat.png")) for k in boxes):
+        print("Note: tree-underlay.png and cat-fill.png are made from the tree and cat. Ask Claude to regenerate them if those changed shape.")
+
+
 class NoCacheHandler(http.server.SimpleHTTPRequestHandler):
     def end_headers(self):
         self.send_header("Cache-Control", "no-store")
@@ -255,6 +298,10 @@ def main():
     s.set_defaults(fn=cmd_publish)
 
     sub.add_parser("list", help="list cards").set_defaults(fn=cmd_list)
+
+    s = sub.add_parser("crop-layers", help="crop full-canvas layer PNGs and update card.json")
+    s.add_argument("name")
+    s.set_defaults(fn=cmd_crop_layers)
 
     args = p.parse_args()
     args.fn(args)

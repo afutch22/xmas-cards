@@ -10,7 +10,10 @@
 //       "color": "#4c4243",         scrawl and scratch color
 //       "delay": 0.2,               seconds after the card is revealed
 //       "write": 2.2,               seconds to write the original text
-//       "seed": 11                  change for a different scratch
+//       "seed": 11,                 change for a different scratch
+//       "position": "below",        "below" or "above" the scratched word
+//       "offsetX": 0.06,            nudge sideways, as a fraction of the scratched word's width
+//       "tilt": -4                  degrees
 //     } }
 
 import { el, injectCSS } from "../util.js";
@@ -26,6 +29,7 @@ export default async function correction({ inner, layer: l, card, cq }) {
   inner.textContent = "";
   inner.classList.add("xc-cx");
   inner.style.setProperty("--cx-color", c.color || "#4c4243");
+  if (c.tilt != null) inner.style.setProperty("--cx-tilt", `${c.tilt}deg`);
   let pos = 0;
   let strikeEl = null;
   lines.forEach((line, i) => {
@@ -53,13 +57,21 @@ export default async function correction({ inner, layer: l, card, cq }) {
   let seed = c.seed ?? 11;
   const rand = () => ((seed = (seed * 9301 + 49297) % 233280) / 233280);
   word.innerHTML = [...(c.replace || "")]
-    .map((ch, i) => `<span style="--i:${i};--r:${(rand() * 14 - 7).toFixed(1)}deg;--y:${(rand() * 0.12 - 0.06).toFixed(3)}em">${ch}</span>`)
+    .map((ch, i) => `<span style="--i:${i};--r:${(rand() * 8 - 4).toFixed(1)}deg;--y:${(rand() * 0.08 - 0.04).toFixed(3)}em">${ch}</span>`)
     .join("");
   inner.append(svg, word);
   if (!strikeEl) return;
 
+  // fonts arrive late from Google Fonts, so measure again whenever any font finishes loading
+  const fam = getComputedStyle(inner).fontFamily;
+  const px = parseFloat(getComputedStyle(inner).fontSize) || 40;
+  await Promise.all([
+    document.fonts.load(`${px}px ${fam}`, text).catch(() => {}),
+    c.font ? document.fonts.load(`${px}px ${c.font}`, c.replace || "").catch(() => {}) : null,
+  ]);
   await document.fonts.ready;
   layout();
+  document.fonts.addEventListener?.("loadingdone", layout);
   addEventListener("resize", layout);
 
   function layout() {
@@ -67,19 +79,22 @@ export default async function correction({ inner, layer: l, card, cq }) {
     const W = inner.offsetWidth, H = inner.offsetHeight;
     if (!W || !H) return;
     const sx = strikeEl.offsetLeft, sy = strikeEl.offsetTop, sw = strikeEl.offsetWidth, sh = strikeEl.offsetHeight;
-    const x = sx - sw * 0.03, y = sy + sh * 0.22, w = sw * 0.98, h = sh * 0.52;
+    const x = sx - sw * 0.05, y = sy + sh * 0.24, w = sw * 1.0, h = sh * 0.5;
     Object.assign(svg.style, { left: `${(x / W) * 100}%`, top: `${(y / H) * 100}%`, width: `${(w / W) * 100}%`, height: `${(h / H) * 100}%` });
     svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
     seed = c.seed ?? 11;
     svg.innerHTML = strikes(w, h, W, rand)
       .map((s, k) => `<path pathLength="1" d="${s.d}" style="--k:${k};--dur:${s.dur}s;stroke-width:${s.sw.toFixed(2)}px;stroke-opacity:${s.op.toFixed(2)}"/>`)
       .join("");
-    Object.assign(word.style, { left: `${((sx + sw * 0.02) / W) * 100}%`, top: `${((sy - word.offsetHeight * 0.42) / H) * 100}%` });
+    const below = (c.position || "below") === "below";
+    const wy = below ? sy + sh * 0.8 : sy - word.offsetHeight * 0.42;
+    Object.assign(word.style, { left: `${((sx + sw * (c.offsetX ?? 0.06)) / W) * 100}%`, top: `${(wy / H) * 100}%` });
   }
 
   // play on every reveal, reset on hide (so a reopened card writes it again)
   let timer;
   const start = () => {
+    layout();
     clearTimeout(timer);
     inner.classList.remove("is-writing");
     void inner.offsetWidth;
@@ -112,7 +127,7 @@ function strikes(w, h, W, rand) {
   for (let i = 0; i < n; i++) {
     const y0 = h * (0.05 + rand() * 0.9);
     const y1 = Math.min(h, Math.max(0, y0 + (rand() - 0.5) * h * 1.1));
-    const xa = -w * (0.03 + rand() * 0.05), xb = w * (1.03 + rand() * 0.06);
+    const xa = -w * (0.02 + rand() * 0.05), xb = w * (0.98 + rand() * 0.05);
     const mid = [w * 0.5, (y0 + y1) / 2 + (rand() - 0.5) * h * 0.15];
     const pts = i % 2 === 0 ? [[xa, y0], mid, [xb, y1]] : [[xb, y1], mid, [xa, y0]];
     out.push({ d: rough(pts, h * 0.08), sw: W * (0.006 + rand() * 0.005), op: 0.8 + rand() * 0.2, dur: 0.14 + rand() * 0.06 });
@@ -129,13 +144,14 @@ const CSS = `
 .xc-cx-scratch path { fill: none; stroke: var(--cx-color); stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 1; }
 .is-writing .xc-cx-scratch path { animation: xc-cx-scratch var(--dur) cubic-bezier(.6,0,.9,.6) forwards; animation-delay: calc(var(--write) + .5s + var(--k) * .12s); }
 @keyframes xc-cx-scratch { to { stroke-dashoffset: 0; } }
-.xc-cx-word { position: absolute; color: var(--cx-color); line-height: 1; white-space: nowrap; transform: rotate(-6deg); transform-origin: left bottom; pointer-events: none; }
-.xc-cx-word span { display: inline-block; opacity: 0; transform: translateY(var(--y)) rotate(var(--r)) scale(1.5); }
-.is-writing .xc-cx-word span { animation: xc-cx-scrawl .22s ease-out forwards; animation-delay: calc(var(--write) + 1.6s + var(--i) * .2s); }
-@keyframes xc-cx-scrawl { to { opacity: 1; transform: translateY(var(--y)) rotate(var(--r)); } }
+.xc-cx-word { position: absolute; color: var(--cx-color); line-height: 1; white-space: nowrap; transform: rotate(var(--cx-tilt, -4deg)); transform-origin: left top; pointer-events: none; }
+.xc-cx-word span { display: inline-block; transform: translateY(var(--y)) rotate(var(--r)); clip-path: inset(-20% 100% -20% -10%); }
+/* written letter by letter, like a pen moving left to right */
+.is-writing .xc-cx-word span { animation: xc-cx-scrawl .26s cubic-bezier(.5,.1,.6,1) forwards; animation-delay: calc(var(--write) + 1.6s + var(--i) * .27s); }
+@keyframes xc-cx-scrawl { to { clip-path: inset(-20% -10% -20% -10%); } }
 @media (prefers-reduced-motion: reduce) {
   .xc-cx-line { clip-path: none; }
   .xc-cx-scratch path { stroke-dashoffset: 0; }
-  .xc-cx-word span { opacity: 1; transform: translateY(var(--y)) rotate(var(--r)); }
+  .xc-cx-word span { clip-path: none; }
 }
 `;
