@@ -82,14 +82,28 @@ export default function viewer(ctx) {
     sx = null;
   });
 
+  let tagTimer;
   function showNoteTag() {
-    if (!cfg.note || document.querySelector(".xc-note-tag")) return;
-    const tag = el("button", "xc-note-tag");
-    tag.textContent = cfg.note.label || "a note for you";
-    tag.onclick = () => open(items.length - 1);
-    document.body.append(tag);
-    setTimeout(() => tag.classList.add("is-on"), (cfg.note.delay ?? 1) * 1000);
+    if (!cfg.note) return;
+    let tag = document.querySelector(".xc-note-tag");
+    if (!tag) {
+      tag = el("button", "xc-note-tag");
+      tag.textContent = cfg.note.label || "a note for you";
+      tag.onclick = () => open(items.length - 1);
+      document.body.append(tag);
+    }
+    clearTimeout(tagTimer);
+    tagTimer = setTimeout(() => tag.classList.add("is-on"), (cfg.note.delay ?? 1) * 1000);
   }
+
+  // the card closing (gatefold) hides the viewer and the note tag until it opens again
+  const hideAll = () => {
+    close();
+    clearTimeout(tagTimer);
+    document.querySelector(".xc-note-tag")?.classList.remove("is-on");
+  };
+  ctx.card.el.addEventListener("xc:closing", hideAll);
+  ctx.card.el.addEventListener("xc:hide", hideAll);
 
   return { open, close, showNoteTag };
 }

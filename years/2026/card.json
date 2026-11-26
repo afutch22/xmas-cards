@@ -1,6 +1,6 @@
 {
   "year": "2026",
-  "engine": "1.2.0",
+  "engine": "1.3.0",
   "meta": {
     "title": "Happy HOWLdays",
     "description": "A little card for you. Tap the bow.",
@@ -8,16 +8,16 @@
     "url": null
   },
   "theme": {
-    "page": "radial-gradient(ellipse at 50% 30%, #5a4d4e, #2b2324 75%)",
+    "page": "#d9aaa1",
     "fontLinks": [
-      "https://fonts.googleapis.com/css2?family=Great+Vibes&family=Schoolbell&family=Caveat:wght@500;700&display=swap"
+      "https://fonts.googleapis.com/css2?family=Great+Vibes&family=Schoolbell&family=Nanum+Pen+Script&display=swap"
     ],
     "stylesheets": [
       "style.css"
     ],
     "fonts": {
       "display": "'Great Vibes', cursive",
-      "hand": "'Caveat', 'Bradley Hand', cursive",
+      "hand": "'Nanum Pen Script', 'Bradley Hand', cursive",
       "scrawl": "'Schoolbell', cursive",
       "body": "Georgia, serif"
     },
@@ -43,17 +43,171 @@
         2,
         3
       ],
-      "hint": "tap the bow"
+      "hint": "tap the bow",
+      "tape": true,
+      "trinkets": [
+        {
+          "side": "l",
+          "kind": "bow",
+          "x": 60,
+          "y": 1,
+          "w": 30,
+          "rotate": 14,
+          "animate": "sway"
+        },
+        {
+          "side": "l",
+          "kind": "yarn",
+          "x": 6,
+          "y": 39,
+          "w": 36,
+          "rotate": -8
+        },
+        {
+          "side": "l",
+          "kind": "paw",
+          "x": 50,
+          "y": 44,
+          "w": 13,
+          "rotate": 20
+        },
+        {
+          "side": "l",
+          "kind": "paw",
+          "x": 68,
+          "y": 40,
+          "w": 11,
+          "rotate": 34
+        },
+        {
+          "side": "l",
+          "src": "assets/art/bits/sparkle-25.png",
+          "x": 82,
+          "y": 31,
+          "w": 9,
+          "rotate": 10,
+          "animate": "twinkle"
+        },
+        {
+          "side": "l",
+          "src": "assets/art/star.png",
+          "x": 6,
+          "y": 88,
+          "w": 22,
+          "rotate": -16,
+          "animate": "twinkle"
+        },
+        {
+          "side": "l",
+          "kind": "fish",
+          "x": 48,
+          "y": 89,
+          "w": 34,
+          "rotate": 8
+        },
+        {
+          "side": "r",
+          "kind": "ornament",
+          "x": 4,
+          "y": 0,
+          "w": 18,
+          "rotate": -6,
+          "animate": "sway"
+        },
+        {
+          "side": "r",
+          "kind": "holly",
+          "x": 10,
+          "y": 41,
+          "w": 38,
+          "rotate": -6
+        },
+        {
+          "side": "r",
+          "kind": "candycane",
+          "x": 64,
+          "y": 37,
+          "w": 14,
+          "rotate": 24
+        },
+        {
+          "side": "r",
+          "kind": "heart",
+          "x": 84,
+          "y": 55,
+          "w": 11,
+          "rotate": 12,
+          "animate": "pulse"
+        },
+        {
+          "side": "r",
+          "src": "assets/art/bits/sparkle-22.png",
+          "x": 80,
+          "y": 2,
+          "w": 10,
+          "rotate": 0,
+          "animate": "twinkle"
+        },
+        {
+          "side": "r",
+          "kind": "mouse",
+          "x": 42,
+          "y": 89,
+          "w": 38,
+          "rotate": -4
+        },
+        {
+          "side": "r",
+          "src": "assets/art/bits/sparkle-18.png",
+          "x": 8,
+          "y": 90,
+          "w": 9,
+          "rotate": 0,
+          "animate": "twinkle"
+        }
+      ],
+      "hintColor": "#4c4243"
     }
   },
   "effects": [
     {
-      "type": "snow",
+      "type": "drift",
       "options": {
-        "count": 45,
-        "color": "#f3dcd6",
-        "size": 2.4,
-        "speed": 0.7
+        "images": [
+          "assets/art/bits/sparkle-1.png",
+          "assets/art/bits/sparkle-2.png",
+          "assets/art/bits/sparkle-3.png",
+          "assets/art/bits/sparkle-6.png",
+          "assets/art/bits/sparkle-7.png",
+          "assets/art/bits/sparkle-11.png",
+          "assets/art/bits/sparkle-13.png",
+          "assets/art/bits/sparkle-15.png",
+          "assets/art/bits/sparkle-17.png",
+          "assets/art/bits/sparkle-18.png",
+          "assets/art/bits/sparkle-19.png",
+          "assets/art/bits/sparkle-22.png",
+          "assets/art/bits/sparkle-23.png",
+          "assets/art/bits/sparkle-24.png",
+          "assets/art/bits/sparkle-25.png"
+        ],
+        "accents": [
+          "assets/art/star.png"
+        ],
+        "still": 22,
+        "falling": 9,
+        "size": [
+          16,
+          30
+        ],
+        "accentSize": [
+          36,
+          52
+        ],
+        "opacity": [
+          0.5,
+          0.9
+        ],
+        "speed": 0.8
       }
     },
     {
@@ -66,7 +220,7 @@
         ],
         "colors": [
           "#e8c54b",
-          "#eacbc3",
+          "#fffaf6",
           "#b54544"
         ]
       }

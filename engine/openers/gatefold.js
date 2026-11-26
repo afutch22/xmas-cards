@@ -13,22 +13,30 @@
 //   bowImage      your own bow drawing (PNG) instead of the drawn one
 //   left, right   gallery indexes shown inside each door       [0, 1] and [2, 3]
 //   photosDelay   seconds after opening before photos pop in   1.4
+//   tape          washi tape on each photo                     true
+//   trinkets      doodles around the photos, each one:
+//                 { "side": "l"|"r", "kind": "bow"|"ornament"|"yarn"|"paw"|"candycane"|"holly"|"mouse"|"fish"|"heart",
+//                   or "src": "assets/your.png", "x": %, "y": %, "w": % of door width, "rotate": deg, "animate": "sway"|"twinkle"|... }
+//   doodleColors  { ink, red, deep, gold, pink, paper } for the doodles
+//   closeLabel    text on the button that closes the card       "close the card"
+// After opening, a button closes the doors again. Tap the bow to reopen; everything replays.
 //   hint          text under the closed card                   "tap the bow"
 //   hintColor     color of the hint                            "rgba(255,255,255,.8)"
 
 import { el, esc, injectCSS, wait } from "../util.js";
+import { doodle } from "../doodles.js";
 
 export default async function gatefold({ root, card, config, options: o, reducedMotion, openGallery }) {
   injectCSS("xc-opener-gatefold", CSS);
   const gallery = config.gallery || [];
   const ink = o.inkColor || "#4c4243";
-  const doorColor = o.doorColor || "#b54544";
-  const patternColor = o.patternColor || "rgba(0,0,0,.22)";
+  const colors = { ink, ...(o.doodleColors || {}) };
+  const t = reducedMotion ? 0.2 : 1;
 
   // wrap the card so the doors can sit on top of it and swing out from its edges
   const wrap = el("div", "xc-gf");
-  wrap.style.setProperty("--door", doorColor);
-  wrap.style.setProperty("--door-pattern", o.doorPattern || sparklePattern(patternColor));
+  wrap.style.setProperty("--door", o.doorColor || "#b54544");
+  wrap.style.setProperty("--door-pattern", o.doorPattern || sparklePattern(o.patternColor || "rgba(0,0,0,.22)"));
   wrap.style.setProperty("--inside", o.insideColor || "#f0d6cf");
   wrap.style.setProperty("--ribbon", o.ribbonColor || "#eacbc3");
   wrap.style.setProperty("--ink", ink);
@@ -39,17 +47,26 @@ export default async function gatefold({ root, card, config, options: o, reduced
   requestAnimationFrame(() => (card.el.style.transition = ""));
 
   const sides = { l: o.left || [0, 1], r: o.right || [2, 3] };
+  const insides = {};
   for (const side of ["l", "r"]) {
     const door = el("div", `xc-gf-door ${side}`);
     const inside = el("div", "xc-gf-face in");
+    insides[side] = inside;
     const ids = sides[side].filter((i) => gallery[i]);
-    const width = ids.length <= 1 ? 80 : ids.length === 2 ? 74 : 58;
+    const width = ids.length <= 1 ? 76 : ids.length === 2 ? 66 : 52;
     ids.forEach((gi, k) => {
       const g = gallery[gi];
       const snap = el("button", "xc-gf-snap", { "aria-label": `View photo${g.caption ? ": " + g.caption : ""}` });
       const slot = 100 / ids.length;
-      snap.style.cssText = `width:${width}%;left:${(100 - width) / 2}%;top:${slot * k + slot * 0.08}%;--r:${(k + (side === "l" ? 0 : 1)) % 2 ? 3 : -4}deg;--i:${k + (side === "r" ? ids.length : 0)}`;
+      const tilt = (k + (side === "l" ? 0 : 1)) % 2 ? 4 : -5;
+      snap.style.cssText = `width:${width}%;left:${(100 - width) / 2 + (k % 2 ? 4 : -4)}%;top:${slot * k + slot * 0.1}%;--r:${tilt}deg;--i:${k + (side === "r" ? ids.length : 0)}`;
       snap.innerHTML = `<img src="${esc(g.src)}" alt="${esc(g.alt || "")}" draggable="false">${g.caption ? `<span>${esc(g.caption)}</span>` : ""}`;
+      if (o.tape !== false) {
+        const tape = el("i", "xc-gf-tape");
+        tape.innerHTML = doodle("tape", colors);
+        tape.style.setProperty("--tr", `${(k % 2 ? 6 : -7) - tilt}deg`);
+        snap.append(tape);
+      }
       snap.addEventListener("click", (e) => {
         e.stopPropagation();
         openGallery(gi);
@@ -61,6 +78,15 @@ export default async function gatefold({ root, card, config, options: o, reduced
     wrap.append(door);
   }
 
+  // trinkets: little doodles (or your own PNGs) around the photos
+  (o.trinkets || []).forEach((tk, i) => {
+    const box = el("div", "xc-gf-trinket");
+    box.style.cssText = `left:${tk.x}%;top:${tk.y}%;width:${tk.w || 18}%;--tr:${tk.rotate || 0}deg;--ti:${i}`;
+    const art = tk.src ? `<img src="${esc(tk.src)}" alt="" draggable="false">` : doodle(tk.kind || "heart", colors);
+    box.innerHTML = `<div class="xc-gf-tk${tk.animate ? " xc-anim-" + tk.animate : ""}" style="animation-delay:${(i * 0.37) % 2}s">${art}</div>`;
+    (insides[tk.side] || insides.l).append(box);
+  });
+
   const bow = o.bowImage ? el("img", "xc-gf-bow", { src: o.bowImage, alt: "" }) : el("div", "xc-gf-bow");
   if (!o.bowImage) bow.innerHTML = bowSVG(ink);
   wrap.append(bow);
@@ -70,42 +96,75 @@ export default async function gatefold({ root, card, config, options: o, reduced
   if (o.hintColor) hint.style.color = o.hintColor;
   root.append(hint);
 
-  wrap.setAttribute("role", "button");
-  wrap.setAttribute("tabindex", "0");
-  wrap.setAttribute("aria-label", "Untie the bow to open the card");
-  await new Promise((resolve) => {
-    const go = () => {
-      wrap.removeEventListener("click", go);
-      resolve();
-    };
-    wrap.addEventListener("click", go);
-    wrap.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        go();
-      }
-    });
-  });
-
-  const t = reducedMotion ? 0.2 : 1;
-  wrap.removeAttribute("role");
-  wrap.removeAttribute("tabindex");
-  wrap.removeAttribute("aria-label");
-  hint.classList.add("is-gone");
-  wrap.classList.add("is-untied");
-  await wait(420 * t);
-  wrap.classList.add("is-open");
+  const closeBtn = el("button", "xc-gf-close", { "aria-label": "Close the card" });
+  closeBtn.textContent = o.closeLabel ?? "close the card";
+  document.body.append(closeBtn);
 
   const fit = () => {
     const w = card.el.offsetWidth;
-    wrap.style.setProperty("--fit", Math.min(1, (innerWidth * 0.96) / (w * 2)).toFixed(3));
+    wrap.style.setProperty("--fit", wrap.classList.contains("is-open") ? Math.min(1, (innerWidth * 0.96) / (w * 2)).toFixed(3) : 1);
   };
-  fit();
   addEventListener("resize", fit);
-  setTimeout(() => wrap.classList.add("show-photos"), (o.photosDelay ?? 1.4) * 1000 * t);
-  setTimeout(() => hint.remove(), 800);
-  // resolve while the doors are still swinging so the drawing starts arriving as they open
-  await wait(500 * t);
+
+  const waitForTap = () =>
+    new Promise((resolve) => {
+      wrap.setAttribute("role", "button");
+      wrap.setAttribute("tabindex", "0");
+      wrap.setAttribute("aria-label", "Untie the bow to open the card");
+      const go = () => {
+        wrap.removeEventListener("click", go);
+        wrap.removeEventListener("keydown", key);
+        wrap.removeAttribute("role");
+        wrap.removeAttribute("tabindex");
+        wrap.removeAttribute("aria-label");
+        resolve();
+      };
+      const key = (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          go();
+        }
+      };
+      wrap.addEventListener("click", go);
+      wrap.addEventListener("keydown", key);
+    });
+
+  let timers = [];
+  const later = (fn, ms) => timers.push(setTimeout(fn, ms * t));
+
+  async function openDoors() {
+    hint.classList.add("is-gone");
+    wrap.classList.add("is-untied");
+    await wait(420 * t);
+    wrap.classList.add("is-open");
+    fit();
+    later(() => wrap.classList.add("show-photos"), (o.photosDelay ?? 1.4) * 1000);
+    later(() => closeBtn.classList.add("is-on"), 2500);
+    await wait(500 * t);
+  }
+
+  async function closeDoors() {
+    timers.forEach(clearTimeout);
+    timers = [];
+    closeBtn.classList.remove("is-on");
+    card.el.dispatchEvent(new CustomEvent("xc:closing"));
+    wrap.classList.remove("show-photos");
+    await wait(250 * t);
+    wrap.classList.remove("is-open");
+    fit();
+    await wait(1250 * t);
+    card.hide(); // reset the drawing so it plays again next time
+    wrap.classList.remove("is-untied");
+    hint.classList.remove("is-gone");
+    await waitForTap();
+    await openDoors();
+    card.reveal();
+  }
+  closeBtn.addEventListener("click", closeDoors);
+
+  // first open: resolve while the doors are still swinging so the drawing starts as they open
+  await waitForTap();
+  await openDoors();
 }
 
 function sparklePattern(color) {
@@ -166,7 +225,7 @@ const CSS = `
 .xc-gf-bow svg { width: 100%; display: block; overflow: visible; }
 @keyframes xc-gf-wiggle { 0%, 82%, 100% { transform: none; } 86% { transform: rotate(-5deg); } 92% { transform: rotate(4deg); } }
 .xc-gf.is-untied .xc-gf-bow { animation: none; transform: translateY(70%) rotate(24deg) scale(.6); opacity: 0; }
-.xc-gf-snap { position: absolute; padding: 5% 5% 0; border: 0; background: #fffaf6; cursor: zoom-in; display: grid; box-shadow: 0 .6cqw 1.6cqw rgba(0,0,0,.25);
+.xc-gf-snap { position: absolute; z-index: 1; padding: 5% 5% 0; border: 0; background: #fffaf6; cursor: zoom-in; display: grid; box-shadow: 0 .6cqw 1.6cqw rgba(0,0,0,.25);
   transform: rotate(var(--r)) scale(0); transition: transform .5s cubic-bezier(.2,1.6,.4,1); transition-delay: calc(var(--i) * .15s); }
 .xc-gf-snap img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
 .xc-gf-snap span { font: 9cqw/1.05 var(--xc-font-hand); color: var(--ink); padding: 4% 2% 7%; text-align: center; }
@@ -174,6 +233,17 @@ const CSS = `
 .show-photos .xc-gf-snap { transform: rotate(var(--r)); }
 .show-photos .xc-gf-snap:hover { transform: rotate(0) scale(1.05); transition-delay: 0s; }
 .xc-gf-snap:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+.xc-gf-tape { position: absolute; left: 30%; top: -6%; width: 40%; transform: rotate(var(--tr)); pointer-events: none; }
+.xc-gf-trinket { position: absolute; z-index: 2; pointer-events: none; transform: rotate(var(--tr)) scale(0); transition: transform .45s cubic-bezier(.2,1.6,.4,1);
+  transition-delay: calc(.6s + var(--ti) * .08s); }
+.xc-gf-trinket img, .xc-gf-trinket svg { width: 100%; display: block; }
+.show-photos .xc-gf-trinket { transform: rotate(var(--tr)); }
+.xc-gf-close { position: fixed; top: max(14px, env(safe-area-inset-top)); right: 14px; z-index: 40; border: 0; cursor: pointer; padding: 8px 14px; border-radius: 999px;
+  background: rgba(255,250,246,.9); color: var(--xc-v-ink, #4c4243); font: 600 14px/1 var(--xc-font-body, system-ui); box-shadow: 0 4px 12px rgba(0,0,0,.2);
+  opacity: 0; transform: translateY(-8px); transition: opacity .4s, transform .4s; pointer-events: none; }
+.xc-gf-close::before { content: "✕"; margin-right: 6px; font-size: 12px; }
+.xc-gf-close.is-on { opacity: 1; transform: none; pointer-events: auto; }
+.xc-v-open .xc-gf-close { opacity: 0; pointer-events: none; }
 .xc-gf-hint { position: fixed; left: 0; right: 0; bottom: 4vh; margin: 0; text-align: center; z-index: 8; color: rgba(255,255,255,.8);
   font: clamp(18px, 4vw, 26px) var(--xc-font-hand); animation: xc-gf-blink 2.2s ease-in-out infinite; transition: opacity .3s; pointer-events: none; }
 .xc-gf-hint.is-gone { opacity: 0; animation: none; }

@@ -13,7 +13,7 @@
 //       "seed": 11                  change for a different scratch
 //     } }
 
-import { el, injectCSS, wait } from "../util.js";
+import { el, injectCSS } from "../util.js";
 
 export default async function correction({ inner, layer: l, card, cq }) {
   injectCSS("xc-correction", CSS);
@@ -77,9 +77,20 @@ export default async function correction({ inner, layer: l, card, cq }) {
     Object.assign(word.style, { left: `${((sx + sw * 0.02) / W) * 100}%`, top: `${((sy - word.offsetHeight * 0.42) / H) * 100}%` });
   }
 
-  await card.revealed;
-  await wait((c.delay ?? 0) * 1000 + (l.delay || 0) * 1000);
-  inner.classList.add("is-writing");
+  // play on every reveal, reset on hide (so a reopened card writes it again)
+  let timer;
+  const start = () => {
+    clearTimeout(timer);
+    inner.classList.remove("is-writing");
+    void inner.offsetWidth;
+    timer = setTimeout(() => inner.classList.add("is-writing"), ((c.delay ?? 0) + (l.delay || 0)) * 1000);
+  };
+  card.el.addEventListener("xc:reveal", start);
+  card.el.addEventListener("xc:hide", () => {
+    clearTimeout(timer);
+    inner.classList.remove("is-writing");
+  });
+  if (card.el.classList.contains("is-revealed")) start();
 }
 
 // fast, slanted pencil strikes dragged back and forth

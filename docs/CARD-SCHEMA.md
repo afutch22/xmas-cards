@@ -56,7 +56,7 @@ To use a font file instead of Google Fonts, put it in `assets/`, add a small CSS
 
 **flip** options `image`, `title`, `color`, `textColor`, `inside`, `hint`.
 
-**gatefold** options `doorColor`, `doorPattern`, `patternColor`, `insideColor`, `ribbonColor`, `inkColor`, `bowImage`, `left`, `right` (gallery indexes shown inside each door), `photosDelay`, `hint`, `hintColor`. The doors stay open as side panels.
+**gatefold** options `doorColor`, `doorPattern`, `patternColor`, `insideColor`, `ribbonColor`, `inkColor`, `bowImage`, `left`, `right` (gallery indexes shown inside each door), `photosDelay`, `tape`, `trinkets`, `doodleColors`, `closeLabel`, `hint`, `hintColor`. The doors stay open as side panels. A close button shuts the card and tapping the bow reopens it, replaying everything. Trinket kinds: bow, ornament, yarn, paw, candycane, holly, mouse, fish, heart, or `src` for your own PNG. See the top of `engine/openers/gatefold.js`.
 
 **none** shows the card immediately.
 
@@ -69,6 +69,7 @@ A list. Each item is a name or `{ "type": name, "options": {...} }`.
 | `snow` | `count`, `color`, `size`, `speed`, `wind`, `glyph` (e.g. `"❄"`), `front` |
 | `twinkle-lights` | `colors`, `spacing`, `sag`, `wire`, `speed` |
 | `sparkle-cursor` | `glyphs`, `colors`, `every`, `size` |
+| `drift` | `images` (your own PNG bits), `accents`, `still`, `falling`, `size`, `accentSize`, `opacity`, `speed`, `front`. A background built from your art. |
 
 ## music
 

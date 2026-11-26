@@ -5,7 +5,7 @@
 
 import { el, loadStylesheet } from "./util.js";
 
-export const ENGINE_VERSION = "1.2.0";
+export const ENGINE_VERSION = "1.3.0";
 
 const params = new URLSearchParams(location.search);
 const IS_EDIT = params.has("edit");
@@ -37,7 +37,7 @@ export async function boot({ root = "#card-root", config = "card.json" } = {}) {
     viewer.open(i);
   };
   card.el.addEventListener("xc:zoom", (e) => ctx.openGallery(e.detail));
-  if (cfg.note) card.revealed.then(async () => {
+  if (cfg.note) card.el.addEventListener("xc:reveal", async () => {
     if (!viewer) viewer = (await import("./viewer.js")).default(ctx);
     viewer.showNoteTag();
   });
@@ -258,8 +258,18 @@ function buildCard(cfg) {
     place,
     revealed, // resolves when the card is first revealed (opener done)
     open: () => {
-      cardEl.classList.add("is-open", "is-revealed");
+      cardEl.classList.add("is-open");
+      cardApi.reveal();
+    },
+    // reveal plays every entrance; hide resets them so a reopened card plays again
+    reveal: () => {
+      cardEl.classList.add("is-revealed");
       markRevealed();
+      cardEl.dispatchEvent(new CustomEvent("xc:reveal"));
+    },
+    hide: () => {
+      cardEl.classList.remove("is-revealed");
+      cardEl.dispatchEvent(new CustomEvent("xc:hide"));
     },
   });
   Object.defineProperty(cardApi, "current", { get: () => current });
