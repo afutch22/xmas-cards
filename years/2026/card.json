@@ -10,14 +10,14 @@
   "theme": {
     "page": "#aab49b",
     "fontLinks": [
-      "https://fonts.googleapis.com/css2?family=Great+Vibes&family=Schoolbell&family=Nanum+Pen+Script&display=swap"
+      "https://fonts.googleapis.com/css2?family=Great+Vibes&family=Schoolbell&family=Reenie+Beanie&display=swap"
     ],
     "stylesheets": [
       "style.css"
     ],
     "fonts": {
       "display": "'Great Vibes', cursive",
-      "hand": "'Nanum Pen Script', 'Bradley Hand', cursive",
+      "hand": "'Reenie Beanie', 'Bradley Hand', cursive",
       "scrawl": "'Schoolbell', cursive",
       "body": "Georgia, serif"
     },
@@ -48,23 +48,6 @@
       "trinkets": [
         {
           "side": "l",
-          "kind": "bow",
-          "x": 62,
-          "y": 2,
-          "w": 26,
-          "rotate": 14,
-          "animate": "sway"
-        },
-        {
-          "side": "l",
-          "kind": "sprig",
-          "x": 8,
-          "y": 40,
-          "w": 30,
-          "rotate": -10
-        },
-        {
-          "side": "l",
           "src": "assets/art/star.png",
           "x": 8,
           "y": 88,
@@ -79,31 +62,6 @@
           "y": 44,
           "w": 9,
           "animate": "twinkle"
-        },
-        {
-          "side": "r",
-          "kind": "ornament",
-          "x": 5,
-          "y": 0,
-          "w": 16,
-          "rotate": -6,
-          "animate": "sway"
-        },
-        {
-          "side": "r",
-          "kind": "candycane",
-          "x": 68,
-          "y": 38,
-          "w": 12,
-          "rotate": 22
-        },
-        {
-          "side": "r",
-          "kind": "bell",
-          "x": 60,
-          "y": 89,
-          "w": 18,
-          "rotate": 10
         },
         {
           "side": "r",
