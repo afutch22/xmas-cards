@@ -186,7 +186,7 @@
           "h": 985,
           "enter": "wipe-up",
           "duration": 1.6,
-          "delay": 0.45
+          "delay": 0.85
         },
         {
           "id": "cat-fill",
@@ -198,12 +198,12 @@
           "h": 689,
           "enter": "slide",
           "from": {
-            "x": 0,
-            "y": -22,
-            "rotate": 1.5
+            "x": 220,
+            "y": -320,
+            "rotate": 10
           },
           "delay": 0,
-          "duration": 0.8
+          "duration": 0.9
         },
         {
           "id": "cat",
@@ -215,12 +215,12 @@
           "h": 691,
           "enter": "slide",
           "from": {
-            "x": 0,
-            "y": -22,
-            "rotate": 1.5
+            "x": 220,
+            "y": -320,
+            "rotate": 10
           },
           "delay": 0,
-          "duration": 0.8
+          "duration": 0.9
         },
         {
           "id": "tree",
@@ -232,7 +232,7 @@
           "h": 978,
           "enter": "wipe-up",
           "duration": 1.6,
-          "delay": 0.35
+          "delay": 0.75
         },
         {
           "id": "star",
@@ -248,7 +248,7 @@
             "y": -380,
             "rotate": -280
           },
-          "delay": 1.7,
+          "delay": 2.1,
           "duration": 1.1,
           "animate": "twinkle",
           "speed": 3.2,
@@ -263,7 +263,7 @@
           "w": 806,
           "h": 968,
           "enter": "sparkle",
-          "delay": 2.3,
+          "delay": 2.7,
           "animate": "shimmer"
         },
         {
@@ -283,7 +283,7 @@
             "font": "'Schoolbell', cursive",
             "size": 70,
             "color": "#4c4243",
-            "delay": 2.9,
+            "delay": 3.3,
             "write": 2.0,
             "seed": 11,
             "position": "below",
