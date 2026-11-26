@@ -9,6 +9,14 @@
       "cover": null,
       "color": "#b8282f",
       "status": "draft"
+    },
+    {
+      "id": "2026",
+      "title": "Happy Holidays",
+      "path": "years/2026/",
+      "cover": null,
+      "color": "#b8282f",
+      "status": "draft"
     }
   ]
 }
